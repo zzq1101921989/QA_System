@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { ParserService } from '../services/parser.service';
-import fs from 'fs';
-import path from 'path';
 
 export class DocumentController {
   private parserService: ParserService;
@@ -27,7 +25,7 @@ export class DocumentController {
       // 调用 Python 解析微服务
       const parseResult = await this.parserService.parseDocument(file);
 
-      // TODO: 这里后续可以接入 LangChain 进行分块 (Chunking) 并存入 ChromaDB
+      // TODO: 从明天开始接入 LangChain 进行分块 (Chunking) 向量化之后，存入 ChromaDB
 
 
       const newDoc = {

@@ -13,6 +13,7 @@ const HomePage: React.FC = () => {
     input,
     setInput,
     isUploading,
+    uploadProgress,
     handleSendMessage,
     handleFileUpload,
     selectDocument,
@@ -27,6 +28,7 @@ const HomePage: React.FC = () => {
         input={input}
         setInput={setInput}
         isUploading={isUploading}
+        uploadProgress={uploadProgress}
         onUpload={handleFileUpload}
         onSelect={selectDocument}
         onSend={handleSendMessage}
@@ -45,6 +47,7 @@ const HomePage: React.FC = () => {
       input={input}
       setInput={setInput}
       isUploading={isUploading}
+      uploadProgress={uploadProgress}
       onUpload={handleFileUpload}
       onSelect={selectDocument}
       onSend={handleSendMessage}

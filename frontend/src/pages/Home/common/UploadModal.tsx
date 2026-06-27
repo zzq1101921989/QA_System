@@ -13,13 +13,15 @@ interface UploadModalProps {
   onClose: () => void;
   onUpload: (file: File) => void;
   isUploading: boolean;
+  uploadProgress: number;
 }
 
 export const UploadModal: React.FC<UploadModalProps> = ({
   isOpen,
   onClose,
   onUpload,
-  isUploading
+  isUploading,
+  uploadProgress
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -40,8 +42,17 @@ export const UploadModal: React.FC<UploadModalProps> = ({
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
-      if (file.type === "application/pdf") {
+      const allowedTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel"
+      ];
+      if (allowedTypes.includes(file.type)) {
         setSelectedFile(file);
+      } else {
+        alert("不支持的文件格式，仅支持 PDF, Word, Excel");
       }
     }
   }, []);
@@ -50,8 +61,17 @@ export const UploadModal: React.FC<UploadModalProps> = ({
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type === "application/pdf") {
+      const allowedTypes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel"
+      ];
+      if (allowedTypes.includes(file.type)) {
         setSelectedFile(file);
+      } else {
+        alert("不支持的文件格式，仅支持 PDF, Word, Excel");
       }
     }
   }, []);
@@ -92,7 +112,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">上传知识文档</h3>
-                  <p className="text-xs text-zinc-500 font-mono">SUPPORTED_FORMAT: PDF_ONLY</p>
+                  <p className="text-xs text-zinc-500 font-mono">SUPPORTED: PDF, DOCX, XLSX</p>
                 </div>
               </div>
               <button 

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import apiRoutes from './routes/api';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 // 加载环境变量
 dotenv.config();
@@ -14,6 +15,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // 注册业务路由
 app.use('/api', apiRoutes);
+
+// 错误处理中间件 (必须在路由之后注册)
+app.use(errorMiddleware);
 
 // 健康检查路由 (Health Check)
 app.get('/health', (req: Request, res: Response) => {

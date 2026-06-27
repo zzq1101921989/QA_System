@@ -1,17 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { Document, Message } from '../types/chat';
+import { documentService } from '../services/documentService';
 
 export function useChat() {
-  const [documents, setDocuments] = useState<Document[]>([
-    { id: '1', name: '2024年度财务报告.pdf', status: 'ready', timestamp: '2024-06-20 14:20', chunkCount: 124 },
-    { id: '2', name: '产品规格说明书_V2.pdf', status: 'processing', timestamp: '2024-06-21 09:15' },
-  ]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'assistant', content: '系统已初始化。准备就绪，请上传文档或直接开始提问。' }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const progressTimerRef = useRef<number | null>(null);
 
   const handleSendMessage = useCallback(() => {
     if (!input.trim()) return;
@@ -32,20 +30,67 @@ export function useChat() {
     }, 1000);
   }, [input, selectedDocId, documents]);
 
-  const handleFileUpload = useCallback((file: File) => {
+  const handleFileUpload = useCallback(async (file: File) => {
+    // 前端校验：限制 50MB
+    if (file.size > 50 * 1024 * 1024) {
+      alert('文件太大，请上传 50MB 以内的 PDF');
+      return;
+    }
+
     setIsUploading(true);
-    setTimeout(() => {
-      const newDoc: Document = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: file.name,
-        status: 'ready',
-        timestamp: new Date().toLocaleString('zh-CN'),
-        chunkCount: Math.floor(Math.random() * 200) + 50
-      };
-      setDocuments(prev => [newDoc, ...prev]);
+    setUploadProgress(0);
+
+    if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+
+    const tempId = Math.random().toString(36).substr(2, 9);
+    const placeholderDoc: Document = {
+      id: tempId,
+      name: file.name,
+      status: 'processing',
+      timestamp: new Date().toLocaleString('zh-CN'),
+      chunkCount: 0
+    };
+    
+    setDocuments(prev => [placeholderDoc, ...prev]);
+
+    try {
+      const newDoc = await documentService.upload(file, (percent) => {
+        // 真实上传进度最高到 90%
+        const realProgress = Math.min(90, percent);
+        setUploadProgress(realProgress);
+
+        // 如果上传完成（100%），开始模拟解析进度
+        if (percent >= 100) {
+          progressTimerRef.current = setInterval(() => {
+            setUploadProgress(prev => {
+              if (prev >= 98) {
+                if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+                return 98;
+              }
+              return prev + 1;
+            });
+          }, 800); // 每 800ms 增加 1%
+        }
+      });
+      
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      setUploadProgress(100);
+      
+      // 用后端返回的真实数据替换占位符
+      setDocuments(prev => prev.map(doc => doc.id === tempId ? newDoc : doc));
+    } catch (error) {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      // 上传失败，移除占位符或标记错误
+      setDocuments(prev => prev.map(doc => 
+        doc.id === tempId ? { ...doc, status: 'error' } : doc
+      ));
+      console.error('Upload failed:', error);
+    } finally {
       setIsUploading(false);
-    }, 2000);
-  }, [documents.length]);
+      // 延迟清除进度显示，让用户看到 100%
+      setTimeout(() => setUploadProgress(0), 1000);
+    }
+  }, []);
 
   const selectDocument = useCallback((id: string) => {
     setSelectedDocId(prev => (prev === id ? null : id));
@@ -58,6 +103,7 @@ export function useChat() {
     input,
     setInput,
     isUploading,
+    uploadProgress,
     handleSendMessage,
     handleFileUpload,
     selectDocument,

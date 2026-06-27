@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Plus, Clock, FileText, CheckCircle2, X } from 'lucide-react';
+import { Database, Plus, Clock, FileText, CheckCircle2, X, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Document } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
@@ -14,6 +14,7 @@ interface SidebarProps {
   documents: Document[];
   selectedDocId: string | null;
   isUploading: boolean;
+  uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   isMobile?: boolean;
@@ -24,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   documents,
   selectedDocId,
   isUploading,
+  uploadProgress,
   onUpload,
   onSelect,
   isMobile,
@@ -54,17 +56,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-lab-accent text-lab-bg font-bold hover:bg-lab-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           {isUploading ? (
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-              <Clock className="w-5 h-5" />
-            </motion.div>
+            <div className="flex items-center gap-2">
+              <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
+                <Loader2 className="w-5 h-5 text-lab-accent" />
+              </motion.div>
+              <span className="text-sm font-medium">
+                {uploadProgress < 90 ? `${uploadProgress}%` : '正在解析...'}
+              </span>
+            </div>
           ) : (
-            <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <div className="flex items-center gap-2">
+              <Plus className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span>上传知识文档</span>
+            </div>
           )}
-          {isUploading ? '处理中...' : '上传 PDF 文档'}
         </button>
       </div>
 
       <UploadModal 
+        uploadProgress={uploadProgress}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onUpload={onUpload}
@@ -84,21 +94,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : "hover:bg-white/5 border border-transparent"
             )}
           >
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2 truncate">
-                <FileText className={cn("w-4 h-4 flex-shrink-0", selectedDocId === doc.id ? "text-lab-accent" : "text-zinc-500")} />
-                <span className={cn("text-sm font-medium truncate", selectedDocId === doc.id ? "text-white" : "text-zinc-300")}>
-                  {doc.name}
-                </span>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2 truncate">
+                  <FileText className={cn("w-4 h-4 flex-shrink-0", selectedDocId === doc.id ? "text-lab-accent" : "text-zinc-500")} />
+                  <span className={cn("text-sm font-medium truncate", selectedDocId === doc.id ? "text-white" : "text-zinc-300")}>
+                    {doc.name}
+                  </span>
+                </div>
+                {doc.status === 'ready' ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-lab-accent flex-shrink-0" />
+                ) : doc.status === 'error' ? (
+                  <div className="w-3.5 h-3.5 text-red-500 flex-shrink-0 font-bold">!</div>
+                ) : (
+                  <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                    <Loader2 className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                  </motion.div>
+                )}
               </div>
-              {doc.status === 'ready' ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-lab-accent flex-shrink-0" />
-              ) : (
-                <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2 }}>
-                  <Clock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                </motion.div>
+              {doc.status === 'processing' && (
+                <div className="mt-2 w-full bg-zinc-800 rounded-full h-1 overflow-hidden">
+                  <motion.div 
+                    className={cn(
+                      "h-full transition-all duration-300",
+                      uploadProgress >= 90 ? "bg-amber-500 animate-pulse" : "bg-lab-accent"
+                    )}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
               )}
-            </div>
             <div className="flex items-center gap-3 text-[10px] font-mono text-zinc-500 mt-1">
               <span>{doc.timestamp}</span>
               {doc.chunkCount && (

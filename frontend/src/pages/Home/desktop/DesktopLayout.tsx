@@ -12,6 +12,7 @@ interface DesktopLayoutProps {
   input: string;
   setInput: (v: string) => void;
   isUploading: boolean;
+  uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onSend: () => void;
@@ -24,6 +25,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   input,
   setInput,
   isUploading,
+  uploadProgress,
   onUpload,
   onSelect,
   onSend,
@@ -37,6 +39,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
           documents={documents}
           selectedDocId={selectedDocId}
           isUploading={isUploading}
+          uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
         />

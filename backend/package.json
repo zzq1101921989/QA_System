@@ -15,15 +15,18 @@
     "@langchain/community": "^1.1.29",
     "@langchain/core": "^1.2.0",
     "@langchain/openai": "^1.5.1",
+    "axios": "^1.18.1",
     "chromadb": "^3.4.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "form-data": "^4.0.6",
     "langchain": "^1.5.0",
     "multer": "^2.2.0",
     "pdf-parse": "^2.4.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/form-data": "^2.5.2",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.0.0",
     "ts-node": "^10.9.2",

@@ -19,6 +19,7 @@ interface MobileLayoutProps {
   input: string;
   setInput: (v: string) => void;
   isUploading: boolean;
+  uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onSend: () => void;
@@ -34,6 +35,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
   input,
   setInput,
   isUploading,
+  uploadProgress,
   onUpload,
   onSelect,
   onSend,
@@ -65,6 +67,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
           documents={documents}
           selectedDocId={selectedDocId}
           isUploading={isUploading}
+          uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
           isMobile

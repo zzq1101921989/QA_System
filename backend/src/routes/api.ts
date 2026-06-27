@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { DocumentController } from '../controllers/document.controller';
 import { ChatController } from '../controllers/chat.controller';
+import { upload } from '../middlewares/upload.middleware';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ const chatController = new ChatController();
 /**
  * 文档管理相关路由
  */
-router.post('/documents/upload', (req, res, next) => documentController.upload(req, res, next));
+router.post('/documents/upload', upload.single('file'), (req, res, next) => documentController.upload(req, res, next));
 
 /**
  * 问答检索相关路由

@@ -4,31 +4,20 @@
 
 ## 🌟 核心特性
 
-### 1. 智能文档处理 (Intelligent Document Processing)
-- **统一转换**: 集成 `MarkItDown` 实现 PDF、Word、Excel 到 Markdown 的高保真转换（已实现）。
-- **语义分块**: 基于 Markdown 结构的智能分块策略，保留文档层级与上下文关联。
-- **高效索引**: 优化的向量化流程与多索引构建，确保检索的高性能。
+### 1. 智能文档处理 ✅（已实现）
+- **统一转换**: 集成 Python `MarkItDown` 微服务实现 PDF、Word、Excel 到 Markdown 的高保真转换。
+- **语义分块**: 基于 LangChain `RecursiveCharacterTextSplitter.fromLanguage('markdown')` 的语义感知分块。
+- **分批向量化**: 适配阿里云百炼 DashScope API 限制，自动分批（batchSize=6）调用 `text-embedding-v4` 入库。
+- **文档管理**: 支持文档上传、自动解析、向量化入库、并展示已入库文档列表。
 
-### 2. 高级检索问答 (Advanced Retrieval QA)
-- **多查询扩展 (MQE)**: 自动生成多维度查询语句，大幅提升长尾问题的召回率。
-- **假设文档嵌入 (HyDE)**: 通过生成模拟回答改善语义搜索的检索精度。
-- **上下文感知**: 深度理解对话历史，实现精准的连续问答体验。
-
-### 3. 多层次记忆管理 (Multi-level Memory)
-- **工作记忆 (Working Memory)**: 实时管理当前学习任务和即时上下文。
-- **情景记忆 (Episodic Memory)**: 记录用户学习事件、查询历史与交互轨迹。
-- **语义记忆 (Semantic Memory)**: 沉淀核心概念知识、领域理解与事实库。
-- **感知记忆 (Perceptual Memory)**: 处理文档原始特征及多模态信息的低层级表征。
-
-### 4. 个性化学习支持 (Personalized Learning)
-- **精准推荐**: 基于用户学习历史与记忆曲线的个性化内容推荐。
-- **记忆优化**: 模拟人类记忆机制，实现知识整合与选择性遗忘。
-- **进度追踪**: 自动化生成学习报告，可视化展现知识掌握进度。
+### 2. 高级检索问答 🚧（开发中）
+- **语义检索**: 基于向量相似度搜索，从知识库中召回相关文档片段。
+- **上下文增强**: 将检索结果构建为 Prompt Context，驱动 LLM 生成引用来源的答案。
 
 ## 🏗 项目结构
 
 - **`frontend/`**: 基于 React 19 & Vite 的客户端。
-  - 采用 Tailwind CSS 3 实现原子化样式。
+  - 采用 Tailwind CSS 4 + `@tailwindcss/vite` 实现原子化样式（无 PostCSS 中间层）。
   - 响应式设计，完美适配移动端与桌面端。
 - **`backend/`**: 基于 Express & TypeScript 的调度服务端。
   - 使用 LangChain.js 编排 RAG 链路。
@@ -46,27 +35,40 @@
 - Docker (用于运行 ChromaDB)
 - OpenAI API Key
 
+> 项目默认端口配置（见 `backend/.env`）：
+> | 服务 | 端口 |
+> |---|---|
+> | ChromaDB | 1101 |
+> | Python 解析微服务 | 8200 |
+> | Node.js 后端 | 3000 |
+> | React 前端 (Vite HMR) | 5173 |
+
 ### 1. 启动向量数据库 (Chroma)
 ```bash
-docker run -p 8000:8000 chromadb/chroma
+docker run -d --name chroma --restart unless-stopped -p 1101:8000 chromadb/chroma:latest
 ```
+验证：`curl http://localhost:1101/api/v2/heartbeat`，返回 `{}` 即正常。
 
 ### 2. 运行解析服务 (Python)
 ```bash
 cd python-document2markdown
 python -m venv venv
-source venv/Scripts/activate  # Windows Git Bash
+# Windows Git Bash
+source venv/Scripts/activate
+# Windows CMD
+# venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8200
 ```
+验证：`curl http://localhost:8200/health`，返回 `{"status":"ok"}` 即正常。
 
 ### 3. 运行调度后端 (Node.js)
-在 `backend/` 目录下创建 `.env` 配置 `OPENAI_API_KEY` 等，然后启动：
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+> 需在 `backend/.env` 中配置 `OPENAI_API_KEY`。`.env` 已预置 `CHROMA_URL`、`PYTHON_PARSER_URL`、`PORT`，按需修改。
 
 ### 4. 运行前端 (React)
 ```bash
@@ -74,6 +76,7 @@ cd frontend
 npm install
 npm run dev
 ```
+浏览器访问 `http://localhost:5173`。
 
 ## 🛠 开发规范
 

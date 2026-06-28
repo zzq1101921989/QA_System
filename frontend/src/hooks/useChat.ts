@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Document, Message } from '../types/chat';
 import { documentService } from '../services/documentService';
 
@@ -10,6 +10,19 @@ export function useChat() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
+
+  // 初始化时从后端同步文档列表
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const docs = await documentService.list();
+        setDocuments(docs);
+      } catch (error) {
+        console.error('Failed to fetch documents:', error);
+      }
+    };
+    fetchDocuments();
+  }, []);
 
   const handleSendMessage = useCallback(() => {
     if (!input.trim()) return;

@@ -12,6 +12,13 @@ export const errorMiddleware = (err: any, req: Request, res: Response, next: Nex
     }
   }
 
+  // 打印错误堆栈到控制台，方便后端调试
+  console.error(`[ErrorMiddleware] 捕获到异常:`, err.message || err);
+  if (err.stack) {
+    // 仅在非生产环境或需要详细调试时打印堆栈
+    console.error(err.stack);
+  }
+
   // 其他错误处理
   const status = err.status || 500;
   const message = err.message || '服务器内部错误';

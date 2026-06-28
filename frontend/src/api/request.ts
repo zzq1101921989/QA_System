@@ -4,7 +4,7 @@ import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'a
 
 const request: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
-  timeout: 60000, // 上传可能较慢，设置 1 分钟超时
+  timeout: 600000, // 文档解析+向量化耗时较长，调大至 10 分钟
 });
 
 // 请求拦截器

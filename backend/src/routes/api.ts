@@ -13,6 +13,7 @@ const chatController = new ChatController();
  * 文档管理相关路由
  */
 router.post('/documents/upload', upload.single('file'), (req, res, next) => documentController.upload(req, res, next));
+router.get('/documents', (req, res, next) => documentController.list(req, res, next));
 
 /**
  * 问答检索相关路由

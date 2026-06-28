@@ -9,6 +9,11 @@ export const llm = new ChatOpenAI({
   temperature: 0,           // 保证回答的一致性与严谨性
 });
 
-export const embeddings = new OpenAIEmbeddings({
-  modelName: "text-embedding-3-small",
+
+export const embeddingsLLM = new OpenAIEmbeddings({
+  modelName: "text-embedding-v4",
+  apiKey: process.env.DASHSCOPE_API_KEY,
+  configuration: {
+    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+  },
 });

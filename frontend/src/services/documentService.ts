@@ -24,4 +24,11 @@ export const documentService = {
       },
     });
   },
+
+  /**
+   * 获取所有已上传文档
+   */
+  async list(): Promise<Document[]> {
+    return request.get<any, Document[]>('/documents');
+  },
 };

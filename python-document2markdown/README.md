@@ -14,4 +14,4 @@
 1. 创建虚拟环境: `python -m venv venv`
 2. 激活环境: `source venv/Scripts/activate` (Windows Git Bash)
 3. 安装依赖: `pip install -r requirements.txt`
-4. 运行服务: `uvicorn app.main:app --reload --port 8001`
+4. 运行服务: `uvicorn app.main:app --reload --port 8200`

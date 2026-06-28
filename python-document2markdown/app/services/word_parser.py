@@ -16,7 +16,7 @@ async def parse_word_to_markdown(content: bytes, filename: str) -> dict:
             "markdown": result.text_content,
             "metadata": {
                 "size": len(content),
-                "source": "markitdown"
+                "source": filename
             }
         }
     except Exception as e:

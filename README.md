@@ -10,9 +10,11 @@
 - **分批向量化**: 适配阿里云百炼 DashScope API 限制，自动分批（batchSize=6）调用 `text-embedding-v4` 入库。
 - **文档管理**: 支持文档上传、自动解析、向量化入库、并展示已入库文档列表。
 
-### 2. 高级检索问答 🚧（开发中）
-- **语义检索**: 基于向量相似度搜索，从知识库中召回相关文档片段。
+### 2. 高级检索问答 ✅（已实现）
+- **向量检索**: 基于 Chroma `similaritySearch` 从知识库中召回 Top-K 最相关的文档片段。
 - **上下文增强**: 将检索结果构建为 Prompt Context，驱动 LLM 生成引用来源的答案。
+- **来源追溯**: 回答中自动标注参考的文档片段编号（如"根据片段 1……"），并展示来源文件名。
+- **检索日志**: 每次问答自动生成检索日志到 `backend/logs/`，方便调试和审查召回质量。
 
 ## 🏗 项目结构
 
@@ -23,6 +25,8 @@
   - 使用 LangChain.js 编排 RAG 链路。
   - 使用 Chroma 作为本地向量数据库。
   - 负责与前端交互及调用 Python 解析服务。
+  - `AskService` 实现完整 RAG 流程：向量检索 → Context 构建 → LLM 生成。
+  - 每次问答自动保存检索日志到 `logs/` 目录，便于调试召回质量。
 - **`python-document2markdown/`**: 基于 FastAPI 的文档解析微服务。
   - 专门负责将 PDF, Word, Excel 转换为结构化的 Markdown。
   - 预留集成 `marker-pdf`、`mammoth` 等高性能解析库。
@@ -33,7 +37,7 @@
 - Node.js (>= 18)
 - Python (>= 3.9)
 - Docker (用于运行 ChromaDB)
-- OpenAI API Key
+- 阿里云百炼 DashScope API Key
 
 > 项目默认端口配置（见 `backend/.env`）：
 > | 服务 | 端口 |
@@ -73,7 +77,8 @@ cd backend
 npm install
 npm run dev
 ```
-> 需在 `backend/.env` 中配置 `OPENAI_API_KEY`。`.env` 已预置 `CHROMA_URL`、`PYTHON_PARSER_URL`、`PORT`，按需修改。
+> 需在 `backend/.env` 中配置 `DASHSCOPE_API_KEY` 和 `DASHSCOPE_BASE_URL`（使用阿里云百炼兼容 OpenAI 接口）。`.env` 已预置 `CHROMA_URL`、`PYTHON_PARSER_URL`、`PORT`，按需修改。
+> 每次问答的检索结果将自动保存到 `backend/logs/` 目录供调试参考。
 
 ### 4. 运行前端 (React)
 ```bash

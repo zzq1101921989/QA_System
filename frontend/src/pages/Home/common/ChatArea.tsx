@@ -55,7 +55,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages }) => {
               msg.role === 'user' ? "items-end" : ""
             )}>
               <div className={cn(
-                "p-3 md:p-4 rounded-2xl text-xs md:text-sm leading-relaxed",
+                "p-3 md:p-4 rounded-2xl text-xs md:text-sm leading-relaxed whitespace-pre-wrap",
                 msg.role === 'user' 
                   ? "bg-zinc-800 text-white rounded-tr-none" 
                   : "bg-lab-panel text-zinc-200 border border-lab-border rounded-tl-none"

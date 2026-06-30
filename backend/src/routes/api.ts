@@ -18,6 +18,6 @@ router.get('/documents', (req, res, next) => documentController.list(req, res, n
 /**
  * 问答检索相关路由
  */
-router.post('/chat/ask', (req, res, next) => chatController.ask(req, res, next));
+router.post('/documents/:documentId/ask', (req, res, next) => chatController.ask(req, res, next));
 
 export default router;

@@ -31,4 +31,14 @@ export const documentService = {
   async list(): Promise<Document[]> {
     return request.get<any, Document[]>('/documents');
   },
+
+  /**
+   * 向文档提问
+   * @param documentId 文档 ID
+   * @param question 问题
+   * @returns 回答
+   */
+  async ask(documentId: string, question: string): Promise<{ message: string; sources: string[] }> {
+    return request.post<any, { message: string; sources: string[] }>(`/documents/${documentId}/ask`, { question });
+  },
 };

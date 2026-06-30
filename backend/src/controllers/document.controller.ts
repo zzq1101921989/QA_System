@@ -34,7 +34,7 @@ export class DocumentController {
       const doc = await this.ingestionService.loadDocument(parseResult, documentId);
       console.log(`[DocumentController] 文档已加载: "${doc.metadata.source}", 长度: ${doc.pageContent.length} 字符`);
 
-      // TODO Step 2: 分块 (Chunking)
+      // Step 2: 分块 (Chunking)
       const textSplitter = RecursiveCharacterTextSplitter.fromLanguage(
         'markdown',
         { chunkSize: 1000, chunkOverlap: 200 }

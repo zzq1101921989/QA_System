@@ -44,8 +44,13 @@
 > | React 前端 (Vite HMR) | 5173 |
 
 ### 1. 启动向量数据库 (Chroma)
+首次创建并运行：
 ```bash
 docker run -d --name chroma --restart unless-stopped -p 1101:8000 chromadb/chroma:latest
+```
+后续如果容器已存在（容器名冲突），直接启动或重启即可：
+```bash
+docker start chroma
 ```
 验证：`curl http://localhost:1101/api/v2/heartbeat`，返回 `{}` 即正常。
 

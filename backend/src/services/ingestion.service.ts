@@ -34,7 +34,7 @@ export class IngestionService {
       return new Document({ pageContent: chunk.pageContent, metadata: meta });
     });
 
-    // 分批次入库
+    // 分批次入库（会调用 DashScope API 进行向量化，每个批次 6 个块）
     for (let i = 0; i < tagged.length; i += batchSize) {
       const batch = tagged.slice(i, i + batchSize);
       console.log(`[IngestionService] 正在处理第 ${Math.floor(i / batchSize) + 1} 批数据 (${batch.length} 个块)...`);

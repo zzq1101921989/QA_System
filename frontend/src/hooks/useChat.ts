@@ -30,17 +30,20 @@ export function useChat() {
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    
-    // Mock AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: '正在检索知识库... 这是来自 RAG 引擎的模拟回答。',
-        sources: selectedDocId ? [documents.find(d => d.id === selectedDocId)?.name || ''] : []
-      };
-      setMessages(prev => [...prev, aiMsg]);
-    }, 1000);
+
+    // 调用后端 API 提问
+    if (selectedDocId) {
+      documentService.ask(selectedDocId, input).then(response => {
+        const aiMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: response.message,
+          sources: response.sources || [],
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      });
+    }
+
   }, [input, selectedDocId, documents]);
 
   const handleFileUpload = useCallback(async (file: File) => {

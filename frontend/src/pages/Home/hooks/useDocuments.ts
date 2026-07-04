@@ -1,12 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { Document, Message } from '../types/chat';
-import { documentService } from '../services/documentService';
+import type { Document } from '../../../types/chat';
+import { documentService } from '../../../services/documentService';
 
-export function useChat() {
+export function useDocuments() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
@@ -24,28 +22,9 @@ export function useChat() {
     fetchDocuments();
   }, []);
 
-  const handleSendMessage = useCallback(() => {
-    if (!input.trim()) return;
-    
-    const userMsg: Message = { id: Date.now().toString(), role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
-
-    // 调用后端 API 提问
-    if (selectedDocId) {
-      documentService.ask(selectedDocId, input).then(response => {
-        const aiMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: response.message,
-          sources: response.sources || [],
-        };
-        setMessages(prev => [...prev, aiMsg]);
-      });
-    }
-
-  }, [input, selectedDocId, documents]);
-
+  /**
+   * 处理文件上传并解析为文档
+   */
   const handleFileUpload = useCallback(async (file: File) => {
     // 前端校验：限制 50MB
     if (file.size > 50 * 1024 * 1024) {
@@ -108,6 +87,9 @@ export function useChat() {
     }
   }, []);
 
+  /**
+   * 选择文档进行问答
+   */
   const selectDocument = useCallback((id: string) => {
     setSelectedDocId(prev => (prev === id ? null : id));
   }, []);
@@ -115,12 +97,8 @@ export function useChat() {
   return {
     documents,
     selectedDocId,
-    messages,
-    input,
-    setInput,
     isUploading,
     uploadProgress,
-    handleSendMessage,
     handleFileUpload,
     selectDocument,
   };

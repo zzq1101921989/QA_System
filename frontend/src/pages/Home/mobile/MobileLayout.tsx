@@ -16,6 +16,7 @@ interface MobileLayoutProps {
   documents: Document[];
   selectedDocId: string | null;
   messages: Message[];
+  isAsking: boolean;
   input: string;
   setInput: (v: string) => void;
   isUploading: boolean;
@@ -23,6 +24,11 @@ interface MobileLayoutProps {
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onSend: () => void;
+  onNewChat: () => void;
+  sessionMessages?: any[];
+  currentSessionId?: string | null;
+  onSwitchSession?: (id: string) => void;
+  onDeleteSession?: (id: string) => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
@@ -32,6 +38,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
   documents,
   selectedDocId,
   messages,
+  isAsking,
   input,
   setInput,
   isUploading,
@@ -39,6 +46,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
   onUpload,
   onSelect,
   onSend,
+  onNewChat,
+  sessionMessages,
+  currentSessionId,
+  onSwitchSession,
+  onDeleteSession,
   isSidebarOpen,
   toggleSidebar,
   closeSidebar,
@@ -70,6 +82,11 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
           uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
+          onNewChat={onNewChat}
+          sessionMessages={sessionMessages}
+          currentSessionId={currentSessionId}
+          onSwitchSession={onSwitchSession}
+          onDeleteSession={onDeleteSession}
           isMobile
           onClose={closeSidebar}
         />
@@ -78,10 +95,10 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
       <main className="flex-1 flex flex-col relative h-full">
         <header className="h-16 border-b border-lab-border flex items-center justify-between px-4 bg-lab-bg/80 backdrop-blur-md z-10 flex-shrink-0">
           <div className="flex items-center gap-4 truncate">
-            <button onClick={toggleSidebar} className="p-2 -ml-2 text-zinc-400 hover:text-white">
+            <button onClick={toggleSidebar} className="p-2 -ml-2 text-lab-text/40 hover:text-lab-text">
               <Menu className="w-6 h-6" />
             </button>
-            <span className="text-[10px] font-mono text-zinc-400 uppercase">分析模式: {selectedDocId ? '指定' : '全局'}</span>
+            <span className="text-[10px] font-mono text-lab-text/40 uppercase">分析模式: {selectedDocId ? '指定' : '全局'}</span>
             {selectedDocId && (
               <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-lab-accent/10 border border-lab-accent/20 max-w-[100px]">
                 <span className="text-[10px] text-lab-accent font-bold uppercase truncate">
@@ -95,7 +112,7 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
           </div>
         </header>
 
-        <ChatArea messages={messages} />
+        <ChatArea messages={messages} isAsking={isAsking} />
 
         <InputBar 
           input={input}

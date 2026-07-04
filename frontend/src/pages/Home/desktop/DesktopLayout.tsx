@@ -3,25 +3,33 @@ import { Search } from 'lucide-react';
 import { Sidebar } from '../common/Sidebar';
 import { ChatArea } from '../common/ChatArea';
 import { InputBar } from '../common/InputBar';
-import type{ Document, Message } from '../../../types/chat';
+import type { Document, Message, SessionMessage } from '../../../types/chat';
 
 interface DesktopLayoutProps {
   documents: Document[];
   selectedDocId: string | null;
   messages: Message[];
+  isAsking: boolean;
   input: string;
   setInput: (v: string) => void;
   isUploading: boolean;
   uploadProgress: number;
+  onAddChat: () => void;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onSend: () => void;
+  onNewChat: () => void;
+  sessionMessages?: any[];
+  currentSessionId?: string | null;
+  onSwitchSession?: (id: string) => void;
+  onDeleteSession?: (id: string) => void;
 }
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   documents,
   selectedDocId,
   messages,
+  isAsking,
   input,
   setInput,
   isUploading,
@@ -29,6 +37,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   onUpload,
   onSelect,
   onSend,
+  onNewChat,
+  sessionMessages,
+  currentSessionId,
+  onSwitchSession,
+  onDeleteSession,
 }) => {
   const selectedDoc = documents.find(d => d.id === selectedDocId);
 
@@ -42,6 +55,11 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
           uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
+          onNewChat={onNewChat}
+          sessionMessages={sessionMessages}
+          currentSessionId={currentSessionId}
+          onSwitchSession={onSwitchSession}
+          onDeleteSession={onDeleteSession}
         />
       </aside>
 
@@ -49,8 +67,8 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
         <header className="h-16 border-b border-lab-border flex items-center justify-between px-8 bg-lab-bg/80 backdrop-blur-md z-10 flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Search className="w-4 h-4 text-zinc-500" />
-              <span className="text-xs font-mono text-zinc-400 uppercase">分析模式: {selectedDocId ? '指定文档' : '全局'}</span>
+              <Search className="w-4 h-4 text-lab-text/40" />
+              <span className="text-xs font-mono text-lab-text/40 uppercase">分析模式: {selectedDocId ? '指定文档' : '全局'}</span>
             </div>
             {selectedDocId && (
               <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-lab-accent/10 border border-lab-accent/20">
@@ -62,13 +80,13 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-lab-accent animate-pulse" />
-            <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Secure Connection</span>
+            <span className="text-[10px] font-mono text-lab-text/40 uppercase tracking-widest">Secure Connection</span>
           </div>
         </header>
 
-        <ChatArea messages={messages} />
+        <ChatArea messages={messages} isAsking={isAsking} />
 
-        <InputBar 
+        <InputBar
           input={input}
           setInput={setInput}
           onSend={onSend}

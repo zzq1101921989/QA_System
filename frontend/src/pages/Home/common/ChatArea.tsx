@@ -11,9 +11,10 @@ function cn(...inputs: ClassValue[]) {
 
 interface ChatAreaProps {
   messages: Message[];
+  isAsking?: boolean;
 }
 
-export const ChatArea: React.FC<ChatAreaProps> = ({ messages }) => {
+export const ChatArea: React.FC<ChatAreaProps> = ({ messages, isAsking }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,15 +40,19 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages }) => {
             )}
           >
             <div className={cn(
-              "w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 border",
+              "w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 border overflow-hidden",
               msg.role === 'user' 
-                ? "bg-zinc-800 border-zinc-700" 
-                : "bg-lab-accent/10 border-lab-accent/20"
+                ? "bg-lab-text/10 border-lab-text/10" 
+                : "bg-lab-active/10 border-lab-active/20"
             )}>
               {msg.role === 'user' ? (
-                <span className="text-[10px] md:text-xs font-bold text-zinc-400">访客</span>
+                <span className="text-[10px] md:text-xs font-bold text-lab-text/40">访客</span>
               ) : (
-                <Database className="w-4 h-4 md:w-5 md:h-5 text-lab-accent" />
+                <img 
+                  src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=RX-78-2+Gundam+head+portrait+minimalist+flat+vector+style+white+background&image_size=square" 
+                  alt="AI"
+                  className="w-full h-full object-cover"
+                />
               )}
             </div>
             <div className={cn(
@@ -57,16 +62,16 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages }) => {
               <div className={cn(
                 "p-3 md:p-4 rounded-2xl text-xs md:text-sm leading-relaxed whitespace-pre-wrap",
                 msg.role === 'user' 
-                  ? "bg-zinc-800 text-white rounded-tr-none" 
-                  : "bg-lab-panel text-zinc-200 border border-lab-border rounded-tl-none"
+                  ? "bg-lab-text/10 text-lab-text rounded-tr-none" 
+                  : "bg-lab-bubble-ai text-lab-text/80 border border-lab-border rounded-tl-none"
               )}>
                 {msg.content}
               </div>
               {msg.sources && msg.sources.length > 0 && (
                 <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-[9px] md:text-[10px] font-bold text-zinc-500 uppercase">参考来源:</span>
+                  <span className="text-[9px] md:text-[10px] font-bold text-lab-text/40 uppercase">参考来源:</span>
                   {msg.sources.map((s, i) => (
-                    <div key={i} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[8px] md:text-[9px] text-zinc-400 font-mono italic">
+                    <div key={i} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-lab-text/10 border border-lab-text/10 text-[8px] md:text-[9px] text-lab-text/40 font-mono italic">
                       <FileText className="w-3 h-3" />
                       {s}
                     </div>
@@ -76,6 +81,43 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages }) => {
             </div>
           </motion.div>
         ))}
+        {isAsking && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3 md:gap-4 max-w-4xl"
+          >
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center flex-shrink-0 border overflow-hidden bg-lab-active/10 border-lab-active/20">
+              <img 
+                src="https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=RX-78-2+Gundam+head+portrait+minimalist+flat+vector+style+white+background&image_size=square" 
+                alt="AI"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="p-3 md:p-4 rounded-2xl text-xs md:text-sm leading-relaxed bg-lab-bubble-ai text-lab-text/80 border border-lab-border rounded-tl-none flex items-center gap-2">
+                <span className="text-lab-text/40 italic">AI 正在思考</span>
+                <div className="flex gap-1">
+                  <motion.div 
+                    animate={{ opacity: [0.2, 1, 0.2] }} 
+                    transition={{ repeat: Infinity, duration: 1.5, delay: 0 }}
+                    className="w-1 h-1 rounded-full bg-lab-accent" 
+                  />
+                  <motion.div 
+                    animate={{ opacity: [0.2, 1, 0.2] }} 
+                    transition={{ repeat: Infinity, duration: 1.5, delay: 0.2 }}
+                    className="w-1 h-1 rounded-full bg-lab-accent2" 
+                  />
+                  <motion.div 
+                    animate={{ opacity: [0.2, 1, 0.2] }} 
+                    transition={{ repeat: Infinity, duration: 1.5, delay: 0.4 }}
+                    className="w-1 h-1 rounded-full bg-lab-accent" 
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

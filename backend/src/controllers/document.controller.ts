@@ -76,4 +76,14 @@ export class DocumentController {
       next(error);
     }
   }
+
+  public async deleteDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const documentId = req.params.id;
+      await this.ingestionService.deleteDocument(documentId as string);
+      res.status(200).json({ message: '文档已删除' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

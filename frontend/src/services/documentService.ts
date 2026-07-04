@@ -36,9 +36,10 @@ export const documentService = {
    * 向文档提问
    * @param documentId 文档 ID
    * @param question 问题
+   * @param sessionId 可选的会话 ID
    * @returns 回答
    */
-  async ask(documentId: string, question: string): Promise<{ message: string; sources: string[] }> {
-    return request.post<any, { message: string; sources: string[] }>(`/documents/${documentId}/ask`, { question });
+  async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId: string }> {
+    return request.post<any, { message: string; sources: string[]; sessionId: string }>(`/documents/${documentId}/ask`, { question, sessionId });
   },
 };

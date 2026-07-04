@@ -8,26 +8,22 @@ export class ChatController {
     this.askService = new AskService();
   }
   
+
+  // TODO：增加记忆管理模块
   /**
    * 处理 RAG 检索问答
    */
   public async ask(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { documentId } = req.params;
-      const { question } = req.body;
-
-      // 检索文档是否存在
-      // const doc = await documentService.get(documentId as string);
-      // if (!doc) {
-      //   res.status(404).json({
-      //     success: false,
-      //     message: 'Document not found'
-      //   });
-      //   return
-      // }
+      const { question, sessionId } = req.body;
 
       // 调用 RAG 检索问答服务
-      const response = await this.askService.ask(documentId as string, question as string);
+      const response = await this.askService.ask(
+        documentId as string, 
+        question as string, 
+        sessionId as string
+      );
 
       res.status(200).json(response);
     } catch (error) {

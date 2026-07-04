@@ -89,4 +89,18 @@ export class IngestionService {
       throw error;
     }
   }
+
+  /**
+   * 删除指定 documentId 的所有分块
+   */
+  public async deleteDocument(documentId: string): Promise<void> {
+    const chroma = await getChromaInstance();
+    const collection = await chroma.collection;
+
+    chroma?.delete({
+      filter: {
+        documentId,
+      }
+    })
+  }
 }

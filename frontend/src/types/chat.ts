@@ -12,3 +12,8 @@ export interface Message {
   content: string;
   sources?: string[];
 }
+
+export interface SessionMessage {
+  sessionId: string;
+  sessionName: string;
+}

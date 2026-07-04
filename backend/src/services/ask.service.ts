@@ -4,26 +4,65 @@ import fs from 'fs';
 import path from 'path';
 import { getChromaInstance } from '../core/chroma.client';
 import { llm } from '../core/llm.client';
-import { SystemMessage, HumanMessage } from '@langchain/core/messages';
+import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
+import { ChatMessage, memoryService } from './memory.service';
 
 export class AskService {
+
+  /**
+   * 重写用户问题，生成更符合用户需求的问题和容易被向量检索的问题格式
+   * @param question 用户问题
+   * @param history 上下文历史记录
+   * @returns 重写后的问题
+   */
+  public async rewriteQuestion(question: string, history: ChatMessage[]): Promise<string> {
+
+    console.log('进行了查询重写');
+
+    const rewritePrompt = `
+    ## 角色：
+    你是一个专业的问答助手，负责根据用户的问题和上下文，生成更符合用户需求的问题和容易被向量检索的问题格式。
+    请根据以下上下文和用户问题，生成一个更符合用户需求的问题：
+
+    ## 上下文历史：
+    ${history.map(msg => msg.content).join('\n')}
+
+    ## 用户问题：
+    ${question}
+
+    ## 规则：
+    只返回一些的问题，不要任何解释
+    
+    改写后的问题:
+    `
+    const rewrittenQuestion = await llm.invoke(rewritePrompt);
+    return rewrittenQuestion.content as string;
+  }
+
   /**
    * 处理 RAG 检索问答
+   * @param documentId 文档 ID
+   * @param question 用户问题
+   * @param sessionId 会话 ID，用于保持上下文记忆
    * 
    * 完整流程：
    *   1. 向量检索 — 从 Chroma 中找出与问题最相关的 K 个分块
    *   2. 构建 Context — 将检索结果拼接为 Prompt 上下文
    *   3. LLM 生成 — 调用大模型参考上下文回答问题
    */
-  public async ask(documentId: string, question: string): Promise<{ message: string; sources: string[] }> {
+  public async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId?: string }> {
     // ── Step 1: 向量检索 ──────────────────────────────────
     const chroma = await getChromaInstance();
     const K = 5; // 召回 TOP-5 最相关分块
 
-    const relevantDocs = await chroma.similaritySearch(question, K, { documentId });
+    // 如果提供了 sessionId，则加载历史记录
+    const activeSessionId = sessionId || `session_${Date.now()}`;
+    const history = memoryService.getHistory(activeSessionId);
 
-    // 保存检索日志
-    this.saveRetrievalLog(documentId, question, relevantDocs);
+    // 重写问题（如果有历史）
+    const finalQuestion = history.length > 0 ? await this.rewriteQuestion(question, history) : question;
+
+    const relevantDocs = await chroma.similaritySearch(finalQuestion, K, { documentId });
 
     // 检查是否找到相关文档
     if (relevantDocs.length === 0) {
@@ -45,8 +84,8 @@ export class AskService {
     });
     const sourceNames = Array.from(sourceSet);
 
-    // ── Step 3: LLM 生成 ───────────────────────────────────
-    const response = await llm.invoke([
+    // ── Step 3: 构建消息序列（含历史记忆） ──────────────────────
+    const messages: BaseMessage[] = [
       new SystemMessage(
         '你是一个严谨的知识库问答助手。请严格按照以下文档内容回答用户的问题。\n\n' +
         '规则：\n' +
@@ -55,13 +94,36 @@ export class AskService {
         '3. 不要编造或推断文档中没有的信息\n' +
         '4. 回答时引用具体片段编号（如"根据片段 1……"）\n\n' +
         `以下是文档中与用户问题相关的内容：\n\n${context}`
-      ),
-      new HumanMessage(question),
-    ]);
+      )
+    ];
+
+    // 将历史记录转换为 LangChain 消息格式
+    history.forEach(msg => {
+      if (msg.role === 'user') {
+        messages.push(new HumanMessage(msg.content));
+      } else {
+        messages.push(new AIMessage(msg.content));
+      }
+    });
+
+    // 添加当前问题
+    messages.push(new HumanMessage(question));
+
+    // ── Step 4: LLM 生成 ───────────────────────────────────
+    const response = await llm.invoke(messages);
+    const answer = response.content as string;
+
+    // 记录本次对话到记忆管理中
+    memoryService.addMessage(activeSessionId, { role: 'user', content: question });
+    memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer });
+
+    // 保存检索日志
+    this.saveRetrievalLog(documentId, question, relevantDocs);
 
     return {
-      message: response.content as string,
+      message: answer,
       sources: sourceNames,
+      sessionId: activeSessionId
     };
   }
 

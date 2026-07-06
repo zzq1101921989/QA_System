@@ -52,15 +52,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="w-8 h-8 rounded-lg bg-lab-accent/10 flex items-center justify-center">
             <Database className="w-5 h-5 text-lab-accent" />
           </div>
-          <h1 className="text-lg font-bold tracking-tight text-lab-text uppercase">知识库</h1>
+          <h1 className="text-lg font-display font-bold tracking-[0.1em] text-lab-text uppercase">知识库</h1>
         </div>
         <div className="flex items-center gap-2">
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="p-2 text-lab-text/40 hover:text-lab-accent transition-colors rounded-lg hover:bg-lab-accent/10"
+            className="p-2 bg-lab-accent2 text-white hover:bg-lab-accent2/90 transition-all rounded-lg shadow-sm group"
             title="上传文档"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
           </button>
           {isMobile && onClose && (
             <button onClick={onClose} className="p-2 text-lab-text/40 hover:text-lab-text transition-colors">
@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-4">
         <button 
           onClick={onNewChat}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-lab-accent text-lab-bg font-bold hover:bg-lab-accent/90 transition-all group"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-lab-accent text-white font-bold hover:bg-lab-accent/90 transition-all group shadow-lg shadow-lab-accent/20"
         >
           <MessageSquarePlus className="w-5 h-5 group-hover:scale-110 transition-transform" />
           <span>开启新会话</span>

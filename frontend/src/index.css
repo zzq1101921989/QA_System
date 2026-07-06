@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -6,12 +6,15 @@
   --color-lab-panel: var(--clab-panel);
   --color-lab-accent: var(--clab-accent);
   --color-lab-accent2: var(--clab-accent2);
+  --color-lab-warning: var(--clab-warning);
   --color-lab-active: var(--clab-active);
   --color-lab-bubble-ai: var(--clab-bubble-ai);
+  --color-lab-bubble-ai-text: var(--clab-bubble-ai-text);
   --color-lab-border: var(--clab-border);
   --color-lab-text: var(--clab-text);
   --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'Inter', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
 }
 
 /* ── Theme: Dark Lab（暗夜实验室 - 默认） ── */
@@ -21,21 +24,25 @@
   --clab-panel: #121216;
   --clab-accent: #10b981;
   --clab-accent2: #059669;
+  --clab-warning: #f59e0b;
   --clab-active: var(--clab-accent);
   --clab-bubble-ai: var(--clab-panel);
+  --clab-bubble-ai-text: var(--clab-text);
   --clab-border: #1f1f23;
   --clab-text: #e4e4e7;
 }
 
 /* ── Theme: 元祖高达（RX-78-2 Gundam） ── */
 [data-theme="gundam"] {
-  --clab-bg: #f5f5f7;
-  --clab-panel: #ffffff;
-  --clab-accent: #e62e2d; /* 红色：盾牌与核心战机 */
-  --clab-accent2: #1b4f9c; /* 蓝色：胸甲与足部 */
-  --clab-active: var(--clab-accent2);
-  --clab-bubble-ai: #eef2ff; /* 浅蓝色背景 */
-  --clab-border: #d1d5db;
+  --clab-bg: #e5e7eb; /* 装甲灰 */
+  --clab-panel: #ffffff; /* 纯白装甲 */
+  --clab-accent: #1b4f9c; /* 高达蓝：胸甲 */
+  --clab-accent2: #e62e2d; /* 高达红：盾牌/足部 */
+  --clab-warning: #fbc02d; /* 高达黄：天线/排气口 */
+  --clab-active: var(--clab-accent);
+  --clab-bubble-ai: var(--clab-accent); /* AI 气泡背景改为高达蓝 */
+  --clab-bubble-ai-text: #ffffff;
+  --clab-border: #cbd5e1;
   --clab-text: #1a1a2e;
 }
 
@@ -45,8 +52,10 @@
   --clab-panel: #ffffff;
   --clab-accent: #1565c0;
   --clab-accent2: #e65100;
+  --clab-warning: #ffb300;
   --clab-active: var(--clab-accent);
   --clab-bubble-ai: var(--clab-panel);
+  --clab-bubble-ai-text: var(--clab-text);
   --clab-border: #d0d8e0;
   --clab-text: #1a1a2e;
 }
@@ -57,8 +66,10 @@
   --clab-panel: #ffffff;
   --clab-accent: #d32f2f;
   --clab-accent2: #fbc02d;
+  --clab-warning: #fbc02d;
   --clab-active: var(--clab-accent);
   --clab-bubble-ai: var(--clab-panel);
+  --clab-bubble-ai-text: var(--clab-text);
   --clab-border: #e8dcc8;
   --clab-text: #1a1a2e;
 }
@@ -69,15 +80,20 @@
   --clab-panel: #1a1428;
   --clab-accent: #7c3aed;
   --clab-accent2: #2563eb;
+  --clab-warning: #fbbf24;
   --clab-active: var(--clab-accent);
   --clab-bubble-ai: var(--clab-panel);
+  --clab-bubble-ai-text: var(--clab-text);
   --clab-border: #2a2040;
-  --clab-text: #e0d8f0;
+  --clab-text: #1a1a2e;
+  --clab-shadow: 0 8px 32px -8px rgba(27, 79, 156, 0.12), 0 4px 12px -4px rgba(27, 79, 156, 0.08);
+  --clab-glass: rgba(255, 255, 255, 0.7);
 }
 
 @layer base {
   *, ::before, ::after {
     box-sizing: border-box;
+    border-color: var(--clab-border);
   }
 
   html, body, #root {
@@ -90,8 +106,94 @@
 
   body {
     @apply bg-lab-bg text-lab-text antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    background-image: 
+      linear-gradient(rgba(27, 79, 156, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27, 79, 156, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+/* ── HUD Design Utilities ── */
+@layer components {
+  .hud-card {
+    @apply bg-lab-panel border border-lab-border shadow-2xl relative overflow-hidden;
+    box-shadow: var(--clab-shadow);
+    backdrop-filter: blur(12px);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .hud-notch {
+    clip-path: polygon(
+      0 0, 
+      calc(100% - 12px) 0, 100% 12px, 
+      100% 100%, 
+      12px 100%, 0 calc(100% - 12px)
+    );
+  }
+
+  .hud-tag {
+    @apply font-display text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm font-bold;
+  }
+
+  .hud-header {
+    @apply font-display uppercase tracking-widest font-bold;
+  }
+
+  .hud-border-accent {
+    @apply relative;
+  }
+
+  .hud-border-accent::before {
+    content: '';
+    @apply absolute top-0 left-0 w-1 h-4 bg-lab-accent;
+  }
+
+  .hud-border-accent::after {
+    content: '';
+    @apply absolute bottom-0 right-0 w-4 h-1 bg-lab-accent2;
+  }
+
+  /* ── Battle HUD Effects ── */
+  .battle-hud-bg {
+    @apply pointer-events-none absolute inset-0 overflow-hidden opacity-[0.05] select-none;
+    background-image: 
+      linear-gradient(var(--clab-accent) 1px, transparent 1px),
+      linear-gradient(90deg, var(--clab-accent) 1px, transparent 1px);
+    background-size: 128px 128px;
+  }
+
+  .battle-hud-scanline {
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--clab-accent) 50%,
+      transparent 100%
+    );
+    background-size: 100% 4px;
+    animation: scanline 8s linear infinite;
+    opacity: 0.05;
+  }
+
+  .battle-hud-corners::before,
+  .battle-hud-corners::after {
+    content: '';
+    @apply absolute w-12 h-12 border-lab-accent/20 pointer-events-none;
+  }
+
+  .battle-hud-corners::before {
+    @apply top-8 left-8 border-t-2 border-l-2;
+  }
+
+  .battle-hud-corners::after {
+    @apply bottom-8 right-8 border-b-2 border-r-2;
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
   }
 }
 

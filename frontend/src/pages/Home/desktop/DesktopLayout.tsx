@@ -64,23 +64,35 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
       </aside>
 
       <main className="flex-1 flex flex-col relative h-full">
-        <header className="h-16 border-b border-lab-border flex items-center justify-between px-8 bg-lab-bg/80 backdrop-blur-md z-10 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Search className="w-4 h-4 text-lab-text/40" />
-              <span className="text-xs font-mono text-lab-text/40 uppercase">分析模式: {selectedDocId ? '指定文档' : '全局'}</span>
+        <header className="h-14 border-b border-lab-border flex items-center justify-between px-8 bg-lab-bg/50 backdrop-blur-xl z-10 flex-shrink-0">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-1.5 bg-lab-accent rotate-45" />
+              <span className="text-[10px] font-display text-lab-text/50 uppercase tracking-[0.2em] font-bold">System Status: Online</span>
             </div>
-            {selectedDocId && (
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-lab-accent/10 border border-lab-accent/20">
-                <span className="text-[10px] text-lab-accent font-bold uppercase tracking-tight">
-                  当前: {selectedDoc.name}
-                </span>
+            <div className="h-4 w-[1px] bg-lab-border" />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Search className="w-3.5 h-3.5 text-lab-accent" />
+                <span className="text-[10px] font-display text-lab-text/40 uppercase tracking-wider font-medium">Analysis Mode: {selectedDocId ? 'TARGET_DOC' : 'GLOBAL_QUERY'}</span>
               </div>
-            )}
+              {selectedDocId && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-lab-accent/5 border border-lab-accent/20 hud-notch">
+                  <span className="text-[9px] text-lab-accent font-display font-bold uppercase tracking-tight">
+                    Active_Asset: {selectedDoc.name}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-lab-accent animate-pulse" />
-            <span className="text-[10px] font-mono text-lab-text/40 uppercase tracking-widest">Secure Connection</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] font-display text-lab-text/30 uppercase tracking-[0.3em] font-bold">Sector 04-G</span>
+              <div className="w-2 h-2 rounded-full bg-lab-warning animate-pulse shadow-[0_0_8px_var(--clab-warning)]" />
+            </div>
+            <div className="px-2 py-1 border border-lab-border/50 text-[8px] font-display text-lab-text/40 tracking-[0.1em] font-bold">
+              LATENCY_SYNC: 24MS
+            </div>
           </div>
         </header>
 

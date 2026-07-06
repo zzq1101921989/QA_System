@@ -17,8 +17,6 @@ export class AskService {
    */
   public async rewriteQuestion(question: string, history: ChatMessage[]): Promise<string> {
 
-    console.log('进行了查询重写');
-
     const rewritePrompt = `
     ## 角色：
     你是一个专业的问答助手，负责根据用户的问题和上下文，生成更符合用户需求的问题和容易被向量检索的问题格式。

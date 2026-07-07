@@ -1,12 +1,29 @@
 import request from '../api/request';
-import type { Document } from '../types/chat';
+import type { Document, SessionMessage, Message } from '../types/chat';
+
+interface BackendSession {
+  id: string;
+  title: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackendChatMessage {
+  role: string;
+  content: string;
+}
+
+function mapSession(s: BackendSession): SessionMessage {
+  return { sessionId: s.id, sessionName: s.title ?? '新会话' };
+}
+
+function mapMessage(msg: BackendChatMessage, index: number): Message {
+  return { id: `${msg.role}-${index}`, role: msg.role as 'user' | 'assistant', content: msg.content };
+}
 
 export const documentService = {
   /**
    * 上传 PDF 文档
-   * @param file 文件对象
-   * @param onProgress 上传进度回调
-   * @returns 上传成功后的文档信息
    */
   async upload(file: File, onProgress?: (percent: number) => void): Promise<Document> {
     const formData = new FormData();
@@ -34,12 +51,41 @@ export const documentService = {
 
   /**
    * 向文档提问
-   * @param documentId 文档 ID
-   * @param question 问题
-   * @param sessionId 可选的会话 ID
-   * @returns 回答
    */
   async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId: string }> {
     return request.post<any, { message: string; sources: string[]; sessionId: string }>(`/documents/${documentId}/ask`, { question, sessionId });
+  },
+
+  // ── 会话管理 API ──────────────────────────────────────────
+
+  /**
+   * 创建会话（后端生成 UUID）
+   */
+  async createSession(title?: string): Promise<SessionMessage> {
+    const data = await request.post<any, { sessionId: string }>('/sessions/create', { title });
+    return { sessionId: data.sessionId, sessionName: title ?? '新会话' };
+  },
+
+  /**
+   * 获取所有会话列表
+   */
+  async getSessions(): Promise<SessionMessage[]> {
+    const data = await request.get<any, BackendSession[]>('/sessions');
+    return data.map(mapSession);
+  },
+
+  /**
+   * 获取会话历史消息
+   */
+  async getSessionHistory(sessionId: string): Promise<Message[]> {
+    const data = await request.get<any, BackendChatMessage[]>(`/sessions/${sessionId}/history`);
+    return data.map(mapMessage);
+  },
+
+  /**
+   * 删除会话
+   */
+  async deleteSession(sessionId: string): Promise<void> {
+    await request.delete(`/sessions/${sessionId}`);
   },
 };

@@ -74,7 +74,19 @@ uvicorn app.main:app --reload --port 8200
 ### 3. 运行调度后端 (Node.js)
 ```bash
 cd backend
-npm install
+
+# 1. 首次安装，原生模块编译会被 pnpm 拦截
+pnpm install
+
+# 2. 批准原生模块（better-sqlite3 等）执行编译脚本
+pnpm approve-builds
+
+# 3. 重新安装以触发 .node 绑定文件编译
+pnpm install --force
+
+# 4. 生成 Prisma Client
+npx prisma generate
+
 npm run dev
 ```
 > 需在 `backend/.env` 中配置 `DASHSCOPE_API_KEY` 和 `DASHSCOPE_BASE_URL`（使用阿里云百炼兼容 OpenAI 接口）。`.env` 已预置 `CHROMA_URL`、`PYTHON_PARSER_URL`、`PORT`，按需修改。

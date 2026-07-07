@@ -55,7 +55,7 @@ export class AskService {
 
     // 如果提供了 sessionId，则加载历史记录
     const activeSessionId = sessionId || `session_${Date.now()}`;
-    const history = memoryService.getHistory(activeSessionId);
+    const history = await memoryService.getHistory(activeSessionId);
 
     // 重写问题（如果有历史）
     const finalQuestion = history.length > 0 ? await this.rewriteQuestion(question, history) : question;
@@ -112,8 +112,8 @@ export class AskService {
     const answer = response.content as string;
 
     // 记录本次对话到记忆管理中
-    memoryService.addMessage(activeSessionId, { role: 'user', content: question });
-    memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer });
+    await memoryService.addMessage(activeSessionId, { role: 'user', content: question });
+    await memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer });
 
     // 保存检索日志
     this.saveRetrievalLog(documentId, question, relevantDocs);

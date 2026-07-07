@@ -19,8 +19,7 @@ export function useChat() {
     switchSession,
     deleteSession,
     updateSessionName,
-    saveSessionMessages,
-    getSessionMessages
+    getSessionMessages,
   } = useSession();
 
   const {
@@ -33,9 +32,8 @@ export function useChat() {
     selectedDocId,
     currentSessionId,
     getSessionMessages,
-    saveSessionMessages,
     createNewSession,
-    updateSessionName
+    updateSessionName,
   });
 
   return {
@@ -54,6 +52,6 @@ export function useChat() {
     currentSessionId,
     sessionMessages,
     switchSession,
-    deleteSession
+    deleteSession,
   };
 }

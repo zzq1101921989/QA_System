@@ -14,12 +14,11 @@ interface DesktopLayoutProps {
   setInput: (v: string) => void;
   isUploading: boolean;
   uploadProgress: number;
-  onAddChat: () => void;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onSend: () => void;
   onNewChat: () => void;
-  sessionMessages?: any[];
+  sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;

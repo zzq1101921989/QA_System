@@ -20,4 +20,12 @@ router.get('/documents', (req, res, next) => documentController.list(req, res, n
  */
 router.post('/documents/:documentId/ask', (req, res, next) => chatController.ask(req, res, next));
 
+/**
+ * 会话管理相关路由
+ */
+router.get('/sessions', (req, res, next) => chatController.getSessions(req, res, next));
+router.get('/sessions/:sessionId/history', (req, res, next) => chatController.getSessionHistory(req, res, next));
+router.post('/sessions/create', (req, res, next) => chatController.createSession(req, res, next));
+router.delete('/sessions/:sessionId', (req, res, next) => chatController.deleteSession(req, res, next));
+
 export default router;

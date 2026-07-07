@@ -67,7 +67,6 @@ const HomePage: React.FC = () => {
       onNewChat={handleNewChat}
       sessionMessages={sessionMessages}
       currentSessionId={currentSessionId}
-      onAddChat={handleNewChat}
       onSwitchSession={switchSession}
       onDeleteSession={deleteSession}
     />

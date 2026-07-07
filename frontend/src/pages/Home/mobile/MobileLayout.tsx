@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from '../common/Sidebar';
 import { ChatArea } from '../common/ChatArea';
 import { InputBar } from '../common/InputBar';
-import type { Document, Message } from '../../../types/chat';
+import type { Document, Message, SessionMessage } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -25,7 +25,7 @@ interface MobileLayoutProps {
   onSelect: (id: string) => void;
   onSend: () => void;
   onNewChat: () => void;
-  sessionMessages?: any[];
+  sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;

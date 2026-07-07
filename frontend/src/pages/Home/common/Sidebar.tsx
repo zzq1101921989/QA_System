@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Database, Plus, FileText, CheckCircle2, X, Loader2, MessageSquarePlus, MessageSquare, Trash2, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { Document } from '../../../types/chat';
+import type { Document, SessionMessage } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { UploadModal } from './UploadModal';
@@ -19,7 +19,7 @@ interface SidebarProps {
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
   onNewChat?: () => void;
-  sessionMessages?: any[];
+  sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;

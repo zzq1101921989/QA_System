@@ -5,7 +5,8 @@
 ## 🌟 核心特性
 
 ### 1. 智能文档处理 ✅（已实现）
-- **统一转换**: 集成 Python `MarkItDown` 微服务实现 PDF、Word、Excel 到 Markdown 的高保真转换。
+- **PDF 解析**: 集成 OpenDataLoader PDF（Java 引擎，OmniDocBench 0.831 精度），支持 hybrid AI 增强模式（0.907 精度）。
+- **Office 解析**: Word / Excel 使用 Microsoft MarkItDown 转 Markdown。
 - **语义分块**: 基于 LangChain `RecursiveCharacterTextSplitter.fromLanguage('markdown')` 的语义感知分块。
 - **分批向量化**: 适配阿里云百炼 DashScope API 限制，自动分批（batchSize=6）调用 `text-embedding-v4` 入库。
 - **文档管理**: 支持文档上传、自动解析、向量化入库、并展示已入库文档列表。
@@ -28,14 +29,16 @@
   - `AskService` 实现完整 RAG 流程：向量检索 → Context 构建 → LLM 生成。
   - 每次问答自动保存检索日志到 `logs/` 目录，便于调试召回质量。
 - **`python-document2markdown/`**: 基于 FastAPI 的文档解析微服务。
-  - 专门负责将 PDF, Word, Excel 转换为结构化的 Markdown。
-  - 预留集成 `marker-pdf`、`mammoth` 等高性能解析库。
+  - PDF → OpenDataLoader PDF（Java 引擎，支持 hybrid AI 增强模式）。
+  - Word/Excel → Microsoft MarkItDown。
+  - 提供 Dockerfile，支持容器化部署（内置 JRE）。
 
 ## 🚀 快速开始
 
 ### 前置要求
 - Node.js (>= 18)
-- Python (>= 3.9)
+- Python (>= 3.10)
+- **Java 11+**（OpenDataLoader PDF 引擎依赖）
 - Docker (用于运行 ChromaDB)
 - 阿里云百炼 DashScope API Key
 
@@ -61,6 +64,10 @@ docker start chroma
 ### 2. 运行解析服务 (Python)
 ```bash
 cd python-document2markdown
+
+# 确保已安装 Java 11+（OpenDataLoader PDF 引擎依赖）
+java -version
+
 python -m venv venv
 # Windows Git Bash
 source venv/Scripts/activate
@@ -69,6 +76,12 @@ source venv/Scripts/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8200
 ```
+> 首次运行时 OpenDataLoader PDF 会下载 Java 引擎 JAR 包（约 50MB），请保持网络通畅。
+> 也可使用 Docker 一键部署（内置 JRE，无需宿主机安装 Java）：
+> ```bash
+> docker build -t qa-parser .
+> docker run -d --name qa-parser -p 8200:8200 qa-parser
+> ```
 验证：`curl http://localhost:8200/health`，返回 `{"status":"ok"}` 即正常。
 
 ### 3. 运行调度后端 (Node.js)
@@ -106,10 +119,11 @@ npm run dev
 
 | 任务 | 说明 | 优先级 |
 |------|------|--------|
-| 对话记忆 | 将历史对话作为上下文传给 LLM，支持多轮追问 | ⬆️ |
+| 对话记忆 ✅ | 基于 Prisma + SQLite 的会话持久化，前端 API 驱动（不再使用 localStorage） | — |
 | 查询重写 | 追问时结合历史重写为完整的独立问题再检索 | ⬆️ |
 | HyDE 检索 | 先让 LLM 生成「假设答案」，再用假答案搜向量库，提高召回相关性 | ⬆️ |
 | 多路召回 | 同时用向量检索 + 关键词检索，合并排序提高覆盖率 | ⬆️ |
+| PDF 解析升级 ✅ | 从 markitdown(0.589) → OpenDataLoader PDF(0.831)，支持 hybrid AI 模式(0.907) | — |
 
 ### Phase 2 — 新奇功能探索
 

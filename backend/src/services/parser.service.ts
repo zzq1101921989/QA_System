@@ -24,7 +24,7 @@ export class ParserService {
   public async parseDocument(file: Express.Multer.File): Promise<ParserResult> {
     const formData = new FormData();
     
-    // 如果是磁盘存储，使用 createReadStream 提升性能
+    // 如果是磁盘存储，使用 createReadStream 提升性能, 避免内存不足，流式传输文件内容，边读边解析
     const fileStream = fs.createReadStream(file.path);
     formData.append('file', fileStream, {
       filename: file.originalname,

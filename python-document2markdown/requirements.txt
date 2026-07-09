@@ -1,4 +1,5 @@
 fastapi
 uvicorn
 python-multipart
-markitdown[pdf, docx, xlsx, xls]
+opendataloader-pdf[hybrid]
+markitdown[docx, xlsx, xls]

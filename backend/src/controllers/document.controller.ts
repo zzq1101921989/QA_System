@@ -2,6 +2,31 @@ import { Request, Response, NextFunction } from 'express';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { ParserService } from '../services/parser.service';
 import { IngestionService } from '../services/ingestion.service';
+import fs from 'node:fs';
+import path from 'node:path';
+
+function decodeFilename(file: Express.Multer.File): string {
+  try {
+    return Buffer.from(file.originalname, 'latin1').toString('utf8');
+  } catch {
+    return file.originalname;
+  }
+}
+
+function getDebugDir() {
+  return path.resolve(__dirname, '../../debug_parsed');
+}
+
+function getDebugFileName(originalname: string) {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  return `${originalname}_${timestamp}.md`;
+}
+
+function writeDebugFile(filename: string, content: string) {
+  const debugDir = getDebugDir();
+  if (!fs.existsSync(debugDir)) fs.mkdirSync(debugDir, { recursive: true });
+  fs.writeFileSync(path.join(debugDir, getDebugFileName(filename)), content, 'utf-8');
+}
 
 export class DocumentController {
   private parserService: ParserService;
@@ -24,15 +49,18 @@ export class DocumentController {
         return;
       }
 
-      console.log(`[DocumentController] 收到文件: ${file.originalname}, 开始解析...`);
+      const filename = decodeFilename(file);
+      console.log(`[DocumentController] 收到文件: ${filename}, 开始解析...`);
 
       // Step 0: 调用 Python 解析微服务，获取 Markdown
       const parseResult = await this.parserService.parseDocument(file);
 
+      // 保存解析结果到 debug_parsed/ 目录，用于排查转换完整性
+      writeDebugFile(filename, parseResult.markdown);
+
       // Step 1: Load - 将 Markdown 加载为 LangChain Document
       const documentId = Math.random().toString(36).substr(2, 9);
       const doc = await this.ingestionService.loadDocument(parseResult, documentId);
-      console.log(`[DocumentController] 文档已加载: "${doc.metadata.source}", 长度: ${doc.pageContent.length} 字符`);
 
       // Step 2: 分块 (Chunking)
       const textSplitter = RecursiveCharacterTextSplitter.fromLanguage(

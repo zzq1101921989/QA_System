@@ -57,6 +57,8 @@ export class DocumentController {
 
       // 保存解析结果到 debug_parsed/ 目录，用于排查转换完整性
       writeDebugFile(filename, parseResult.markdown);
+      writeDebugFile(filename + '_elements.json', JSON.stringify(parseResult.elements));
+      console.log(`[DocumentController] 解析结果已保存到 ${getDebugFileName(filename)}`);
 
       // Step 1: Load - 将 Markdown 加载为 LangChain Document
       const documentId = Math.random().toString(36).substr(2, 9);
@@ -105,9 +107,9 @@ export class DocumentController {
     }
   }
 
-  public async deleteDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const documentId = req.params.id;
+      const documentId = req.params.documentId;
       await this.ingestionService.deleteDocument(documentId as string);
       res.status(200).json({ message: '文档已删除' });
     } catch (error) {

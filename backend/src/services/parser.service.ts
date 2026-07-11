@@ -7,6 +7,7 @@ export interface ParserResult {
   filename: string;
   content_type: string;
   markdown: string;
+  elements: any[];
   metadata: any;
 }
 

@@ -35,6 +35,17 @@ export class ChatController {
     }
   }
 
+  public async updateSessionName(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { sessionId } = req.params;
+      const { name } = req.body;
+      await memoryService.updateSessionName(sessionId as string, name as string);
+      res.status(200).json({ message: 'Session name updated successfully' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   /**
    * 获取指定会话的历史记录
    */

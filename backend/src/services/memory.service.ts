@@ -52,6 +52,26 @@ export class MemoryService {
   }
 
   /**
+   * 更新会话名称
+   */
+  public async updateSessionName(sessionId: string, name: string): Promise<void> {
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { title: name },
+    });
+  }
+
+  /**
+   * 获取会话名称
+   */
+  public async getSessionName(sessionId: string): Promise<string | null> {
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+    });
+    return session?.title || null;
+  }
+
+  /**
    * 添加消息到会话
    */
   public async addMessage(sessionId: string, message: ChatMessage): Promise<void> {
@@ -76,13 +96,16 @@ export class MemoryService {
   }
 
   /**
-   * 清除会话
+   * 清除会话历史, 并删除对话记录
    */
   public async clearSession(sessionId: string): Promise<void> {
     await prisma.session.delete({
       where: { id: sessionId },
     }).catch(() => {
       // 忽略会话不存在的错误
+    });
+    await prisma.message.deleteMany({
+      where: { sessionId },
     });
   }
 

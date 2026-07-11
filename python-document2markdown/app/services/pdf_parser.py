@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import opendataloader_pdf
@@ -39,27 +40,35 @@ async def parse_pdf_to_markdown(content: bytes, filename: str) -> dict:
                 opendataloader_pdf.convert(
                     input_path=[pdf_path],
                     output_dir=output_dir,
-                    format='markdown',
+                    format=['json', 'markdown'],
                 )
 
             # ── Step 3: 读取解析结果 ──────────────────────────
             basename = os.path.splitext(os.path.basename(pdf_path))[0]
             md_path = os.path.join(output_dir, f'{basename}.md')
+            json_path = os.path.join(output_dir, f'{basename}.json')
+
+            markdown = ''
+            elements = []
 
             if os.path.exists(md_path):
                 with open(md_path, 'r', encoding='utf-8') as f:
                     markdown = f.read()
-            else:
-                markdown = ''
-                print('[pdf_parser] 警告：未找到输出文件，markdown 返回空字符串')
+
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    elements = data.get('kids', [])
 
         return {
             'filename': filename,
             'content_type': 'pdf',
             'markdown': markdown,
+            'elements': elements,
             'metadata': {
                 'size': len(content),
                 'source': filename,
+                'page_count': len(set(e.get('page number', 0) for e in elements)) if elements else 0,
             },
         }
 

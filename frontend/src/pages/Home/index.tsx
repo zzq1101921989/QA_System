@@ -18,11 +18,13 @@ const HomePage: React.FC = () => {
     handleSendMessage,
     handleFileUpload,
     selectDocument,
+    deleteDocument,
     handleNewChat,
     currentSessionId,
     sessionMessages,
     switchSession,
     deleteSession,
+    updateSessionName,
   } = useChat();
 
   if (isMobile) {
@@ -38,12 +40,14 @@ const HomePage: React.FC = () => {
         uploadProgress={uploadProgress}
         onUpload={handleFileUpload}
         onSelect={selectDocument}
+        onDeleteDocument={deleteDocument}
         onSend={handleSendMessage}
         onNewChat={handleNewChat}
         sessionMessages={sessionMessages}
         currentSessionId={currentSessionId}
         onSwitchSession={switchSession}
         onDeleteSession={deleteSession}
+        onUpdateSession={updateSessionName}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         closeSidebar={closeSidebar}
@@ -63,12 +67,14 @@ const HomePage: React.FC = () => {
       uploadProgress={uploadProgress}
       onUpload={handleFileUpload}
       onSelect={selectDocument}
+      onDeleteDocument={deleteDocument}
       onSend={handleSendMessage}
       onNewChat={handleNewChat}
       sessionMessages={sessionMessages}
       currentSessionId={currentSessionId}
       onSwitchSession={switchSession}
       onDeleteSession={deleteSession}
+      onUpdateSession={updateSessionName}
     />
   );
 };

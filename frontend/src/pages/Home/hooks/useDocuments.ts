@@ -94,6 +94,15 @@ export function useDocuments() {
     setSelectedDocId(prev => (prev === id ? null : id));
   }, []);
 
+  const deleteDocument = useCallback(async (id: string) => {
+    try {
+      await documentService.delete(id);
+      setDocuments(prev => prev.filter(doc => doc.id !== id));
+    } catch (error) {
+      console.error('Failed to delete document:', error);
+    }
+  }, []);
+
   return {
     documents,
     selectedDocId,
@@ -101,5 +110,6 @@ export function useDocuments() {
     uploadProgress,
     handleFileUpload,
     selectDocument,
+    deleteDocument,
   };
 }

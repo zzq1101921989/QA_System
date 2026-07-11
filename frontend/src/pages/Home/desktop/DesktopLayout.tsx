@@ -16,12 +16,14 @@ interface DesktopLayoutProps {
   uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
+  onDeleteDocument: (id: string) => void;
   onSend: () => void;
   onNewChat: () => void;
   sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;
+  onUpdateSession?: (id: string, name: string) => void;
 }
 
 export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
@@ -35,12 +37,14 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
   uploadProgress,
   onUpload,
   onSelect,
+  onDeleteDocument,
   onSend,
   onNewChat,
   sessionMessages,
   currentSessionId,
   onSwitchSession,
   onDeleteSession,
+  onUpdateSession,
 }) => {
   const selectedDoc = documents.find(d => d.id === selectedDocId);
 
@@ -54,11 +58,13 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
           uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
+          onDeleteDocument={onDeleteDocument}
           onNewChat={onNewChat}
           sessionMessages={sessionMessages}
           currentSessionId={currentSessionId}
           onSwitchSession={onSwitchSession}
           onDeleteSession={onDeleteSession}
+          onUpdateSession={onUpdateSession}
         />
       </aside>
 

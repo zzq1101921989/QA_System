@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, Plus, FileText, CheckCircle2, X, Loader2, MessageSquarePlus, MessageSquare, Trash2, Palette } from 'lucide-react';
+import { Database, Plus, FileText, CheckCircle2, X, Loader2, MessageSquarePlus, MessageSquare, Trash2, Palette, Pencil, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Document, SessionMessage } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
@@ -18,11 +18,13 @@ interface SidebarProps {
   uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
+  onDeleteDocument: (id: string) => void;
   onNewChat?: () => void;
   sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;
+  onUpdateSession?: (id: string, name: string) => void;
   isMobile?: boolean;
   onClose?: () => void;
 }
@@ -34,16 +36,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   uploadProgress,
   onUpload,
   onSelect,
+  onDeleteDocument,
   onNewChat,
   sessionMessages = [],
   currentSessionId,
   onSwitchSession,
   onDeleteSession,
+  onUpdateSession,
   isMobile,
   onClose
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { themeId, switchTheme } = useTheme();
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
 
   return (
     <div className="flex flex-col h-full bg-lab-panel overflow-hidden">
@@ -101,7 +107,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="text-xs text-lab-text/30 italic">暂无历史会话</p>
             </div>
           ) : (
-            sessionMessages.map((session) => (
+            sessionMessages.map((session) => {
+              const isEditing = editingSessionId === session.sessionId;
+              return (
               <div
                 key={session.sessionId}
                 className={cn(
@@ -112,25 +120,67 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               >
                 <button
-                  onClick={() => onSwitchSession?.(session.sessionId)}
-                  className="flex-1 flex items-center gap-2 truncate"
+                  onClick={() => !isEditing && onSwitchSession?.(session.sessionId)}
+                  className="flex-1 flex items-center gap-2 truncate min-w-0"
                 >
                   <MessageSquare className={cn("w-4 h-4 flex-shrink-0", currentSessionId === session.sessionId ? "text-lab-active" : "text-lab-text/40")} />
-                  <span className={cn("text-sm font-medium truncate", currentSessionId === session.sessionId ? "text-lab-text" : "text-lab-text/60")}>
-                    {session.sessionName}
-                  </span>
+                  {isEditing ? (
+                    <input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          onUpdateSession?.(session.sessionId, editTitle);
+                          setEditingSessionId(null);
+                        }
+                        if (e.key === 'Escape') setEditingSessionId(null);
+                      }}
+                      className="flex-1 bg-lab-bg border border-lab-accent/50 rounded px-2 py-0.5 text-sm text-lab-text outline-none min-w-0"
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span className={cn("text-sm font-medium truncate", currentSessionId === session.sessionId ? "text-lab-text" : "text-lab-text/60")}>
+                      {session.sessionName}
+                    </span>
+                  )}
                 </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteSession?.(session.sessionId);
-                  }}
-                  className="p-1 text-lab-text/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-0.5 ml-1 flex-shrink-0">
+                  {isEditing ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateSession?.(session.sessionId, editTitle);
+                        setEditingSessionId(null);
+                      }}
+                      className="p-1 text-lab-accent hover:text-lab-accent/80 transition-colors"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingSessionId(session.sessionId);
+                        setEditTitle(session.sessionName);
+                      }}
+                      className="p-1 text-lab-text/30 hover:text-lab-text/60 opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteSession?.(session.sessionId);
+                    }}
+                    className={cn("p-1 text-lab-text/30 hover:text-red-400 transition-all", isEditing ? "" : "opacity-0 group-hover:opacity-100")}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
-            ))
+            )})
           )}
         </div>
 
@@ -146,16 +196,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           ) : (
             documents.map((doc) => (
-              <button
+              <div
                 key={doc.id}
-                onClick={() => onSelect(doc.id)}
                 className={cn(
-                  "w-full flex flex-col gap-1 p-3 rounded-xl transition-all text-left group",
+                  "group w-full flex flex-col gap-1 p-3 rounded-xl transition-all text-left",
                   selectedDocId === doc.id 
                     ? "bg-lab-active/10 border border-lab-active/30" 
                     : "hover:bg-lab-text/5 border border-transparent"
                 )}
               >
+                <button onClick={() => onSelect(doc.id)} className="w-full text-left">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2 truncate">
                       <FileText className={cn("w-4 h-4 flex-shrink-0", selectedDocId === doc.id ? "text-lab-active" : "text-lab-text/40")} />
@@ -163,16 +213,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         {doc.name}
                       </span>
                     </div>
-                    {doc.status === 'ready' ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-lab-active flex-shrink-0" />
-                    ) : doc.status === 'error' ? (
-                      <div className="w-3.5 h-3.5 text-red-500 flex-shrink-0 font-bold">!</div>
-                    ) : (
-                      <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
-                        <Loader2 className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                      </motion.div>
-                    )}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteDocument(doc.id);
+                        }}
+                        className="p-0.5 text-lab-text/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                        title="删除文档"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      {doc.status === 'ready' ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-lab-active" />
+                      ) : doc.status === 'error' ? (
+                        <div className="w-3.5 h-3.5 text-red-500 font-bold">!</div>
+                      ) : (
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                          <Loader2 className="w-3.5 h-3.5 text-amber-500" />
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
+                </button>
                   {doc.status === 'processing' && (
                     <div className="mt-2 w-full bg-lab-text/10 rounded-full h-1 overflow-hidden">
                       <motion.div 
@@ -193,7 +256,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </span>
                   )}
                 </div>
-              </button>
+              </div>
             ))
           )}
         </div>

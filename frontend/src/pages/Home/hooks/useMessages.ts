@@ -1,10 +1,11 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import type { Message } from '../../../types/chat';
+import { useState, useCallback, useEffect } from 'react';
+import type { Message, SessionMessage } from '../../../types/chat';
 import { documentService } from '../../../services/documentService';
 
 interface UseMessagesProps {
   selectedDocId: string | null;
   currentSessionId: string | null;
+  sessionMessages: SessionMessage[];
   getSessionMessages: (sessionId: string) => Promise<Message[]>;
   createNewSession: () => Promise<string>;
   updateSessionName: (sessionId: string, name: string) => void;
@@ -13,6 +14,7 @@ interface UseMessagesProps {
 export function useMessages({
   selectedDocId,
   currentSessionId,
+  sessionMessages,
   getSessionMessages,
   createNewSession,
   updateSessionName,
@@ -45,7 +47,10 @@ export function useMessages({
     if (!activeSessionId) {
       activeSessionId = await createNewSession();
     } else if (messages.length === 0) {
-      updateSessionName(activeSessionId, input);
+      const currentSession = sessionMessages.find(s => s.sessionId === activeSessionId);
+      if (!currentSession?.sessionName) {
+        updateSessionName(activeSessionId, input);
+      }
     }
 
     // 调用后端 API 提问（后端自动保存消息到数据库）

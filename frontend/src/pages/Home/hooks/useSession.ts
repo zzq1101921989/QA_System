@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { SessionMessage, Message } from '../../../types/chat';
-import { documentService } from '../../../services/documentService';
+import { sessionService } from '../../../services/sessionService';
 
 export default function useSession() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -9,7 +9,7 @@ export default function useSession() {
 
   // 初始化：从后端加载会话列表
   useEffect(() => {
-    documentService.getSessions()
+    sessionService.getSessions()
       .then(data => {
         setSessions(data);
         if (data.length > 0) {
@@ -23,7 +23,7 @@ export default function useSession() {
    * 开启新会话（后端生成 UUID）
    */
   const createNewSession = useCallback(async (): Promise<string> => {
-    const newSession = await documentService.createSession();
+    const newSession = await sessionService.createSession();
     setSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(newSession.sessionId);
     return newSession.sessionId;
@@ -44,7 +44,7 @@ export default function useSession() {
     if (currentSessionId === sessionId) {
       setCurrentSessionId(null);
     }
-    await documentService.deleteSession(sessionId);
+    await sessionService.deleteSession(sessionId);
   }, [currentSessionId]);
 
   /**
@@ -56,13 +56,14 @@ export default function useSession() {
         ? { ...s, sessionName: name.slice(0, 20) + (name.length > 20 ? '...' : '') }
         : s
     ));
+    sessionService.updateSessionName(sessionId, name);
   }, []);
 
   /**
    * 从后端加载会话历史消息
    */
   const getSessionMessages = useCallback(async (sessionId: string): Promise<Message[]> => {
-    return documentService.getSessionHistory(sessionId);
+    return sessionService.getSessionHistory(sessionId);
   }, []);
 
   return {

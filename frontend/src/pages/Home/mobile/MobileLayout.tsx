@@ -23,12 +23,14 @@ interface MobileLayoutProps {
   uploadProgress: number;
   onUpload: (file: File) => void;
   onSelect: (id: string) => void;
+  onDeleteDocument: (id: string) => void;
   onSend: () => void;
   onNewChat: () => void;
   sessionMessages?: SessionMessage[];
   currentSessionId?: string | null;
   onSwitchSession?: (id: string) => void;
   onDeleteSession?: (id: string) => void;
+  onUpdateSession?: (id: string, name: string) => void;
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
@@ -45,12 +47,14 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
   uploadProgress,
   onUpload,
   onSelect,
+  onDeleteDocument,
   onSend,
   onNewChat,
   sessionMessages,
   currentSessionId,
   onSwitchSession,
   onDeleteSession,
+  onUpdateSession,
   isSidebarOpen,
   toggleSidebar,
   closeSidebar,
@@ -82,11 +86,13 @@ export const MobileLayout: React.FC<MobileLayoutProps> = ({
           uploadProgress={uploadProgress}
           onUpload={onUpload}
           onSelect={onSelect}
+          onDeleteDocument={onDeleteDocument}
           onNewChat={onNewChat}
           sessionMessages={sessionMessages}
           currentSessionId={currentSessionId}
           onSwitchSession={onSwitchSession}
           onDeleteSession={onDeleteSession}
+          onUpdateSession={onUpdateSession}
           isMobile
           onClose={closeSidebar}
         />

@@ -118,6 +118,12 @@ export class AskService {
     // 保存检索日志
     this.saveRetrievalLog(documentId, question, relevantDocs);
 
+    // 更新会话名称
+    const sessionName = await memoryService.getSessionName(activeSessionId);
+    if (!sessionName) {
+      await memoryService.updateSessionName(activeSessionId, question); // 会话名称默认使用问题
+    }
+
     return {
       message: answer,
       sources: sourceNames,

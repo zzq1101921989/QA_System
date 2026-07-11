@@ -10,6 +10,7 @@ export function useChat() {
     uploadProgress,
     handleFileUpload,
     selectDocument,
+    deleteDocument,
   } = useDocuments();
 
   const {
@@ -31,6 +32,7 @@ export function useChat() {
   } = useMessages({
     selectedDocId,
     currentSessionId,
+    sessionMessages,
     getSessionMessages,
     createNewSession,
     updateSessionName,
@@ -48,10 +50,12 @@ export function useChat() {
     handleSendMessage,
     handleFileUpload,
     selectDocument,
+    deleteDocument,
     handleNewChat: createNewSession,
     currentSessionId,
     sessionMessages,
     switchSession,
     deleteSession,
+    updateSessionName,
   };
 }

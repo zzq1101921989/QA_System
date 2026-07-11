@@ -96,11 +96,8 @@ export class IngestionService {
   public async deleteDocument(documentId: string): Promise<void> {
     const chroma = await getChromaInstance();
     const collection = await chroma.collection;
-
-    chroma?.delete({
-      filter: {
-        documentId,
-      }
+    await collection?.delete({
+      where: { documentId },
     })
   }
 }

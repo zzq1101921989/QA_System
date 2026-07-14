@@ -35,7 +35,11 @@ Phase 1 (检索质量提升) ──── 当前正在做
     ├── 多路召回 ⬅️ 下一个任务
     └── 混合解析优化
 
-Phase 2 (新奇功能) ──── 待开始
+Phase 2 (主动学习 & 任务机制) ──── 待开始
+    ├── 文档主动分析 (概要/关键词/大纲) ⬅️ Phase 2 启动项
+    ├── 学习引导 (推荐提问/引导卡片)
+    └── 刷题打卡 (任务驱动)
+
 Phase 3 (产品化打磨) ──── 待开始
 ```
 
@@ -198,20 +202,23 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ---
 
-## Phase 2 — 新奇功能探索
+## Phase 2 — 主动学习 & 任务机制
 
-### 任务 2.1 文档主动分析
+### 任务 2.1 文档主动分析 (Overview First) ⬅️
 
-**目标**：文档上传向量化后，自动生成摘要、关键词标签、文档大纲，展示在文档列表项中。
+**目标**：用户上传文档后，自动生成“文档概要”，帮助用户快速消化内容，而非直接进入做题环节。
+
+**学习闭环设计**：概览 (Summary) → 理解 (Q&A) → 检验 (Quiz) → 强化 (Review)。
 
 #### 改动文件
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ingestion.service.ts` | 修改 | 入库成功后调用 LLM 生成分析结果 |
-| `backend/src/services/ask.service.ts` | 不改 | 复用 |
-| `frontend/src/types/chat.ts` | 修改 | Document 接口增加 summary、keywords 字段 |
-| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 悬浮或展开显示文档摘要/关键词 |
+| `backend/src/services/ingestion.service.ts` | 修改 | 入库成功后异步调用 LLM 生成摘要、关键词、大纲 |
+| `backend/src/repositories/vector.repository.ts` | 修改 | 支持存储和读取文档级别的概要元数据 |
+| `frontend/src/types/chat.ts` | 修改 | Document 接口增加 summary、keywords、outline 字段 |
+| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 文档项下方展示关键词标签，点击文档展示概要预览 |
+| `frontend/src/pages/Home/common/ChatArea.tsx` | 修改 | 新会话默认展示“文档概要卡片”而非空白，引导用户开始学习 |
 
 #### 数据流
 
@@ -219,40 +226,38 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 文档入库成功
     │
     ▼
-后端异步调用 LLM:
-  Prompt: "请为以下文档内容生成：1. 一句话摘要 2. 3-5 个关键词标签 3. 文档大纲"
+后端触发异步任务 (LLM):
+  Prompt: "你是一个学习助手，请为该文档生成：1.一句话摘要 2.核心关键词 3.文档大纲"
     │
     ▼
-返回结构化数据 → 存入 Chroma metadata → 前端通过文档列表接口获取
-```
-
-#### Document 类型新增字段
-
-```typescript
-export interface Document {
-  id: string;
-  name: string;
-  status: 'processing' | 'ready' | 'error';
-  timestamp: string;
-  chunkCount?: number;
-  // === 新增 ===
-  summary?: string;       // 一句话摘要
-  keywords?: string[];    // 关键词标签
-  outline?: string[];     // 文档大纲（标题列表）
-}
+结果存入元数据 (Chroma/DB)
+    │
+    ▼
+前端识别“新文档”状态 → 自动弹出/展示概要卡片 → 提供“推荐问题”引导学习
 ```
 
 #### 验收标准
 
-- [ ] 文档上传后自动显示"正在分析..."状态
-- [ ] 分析完成后，文档项显示关键词标签
-- [ ] 鼠标悬浮或点击展开，显示摘要和大纲
+- [ ] 文档上传后 5s 内生成摘要和关键词标签
+- [ ] 侧边栏文档项显示 3 个核心关键词标签
+- [ ] 首次打开文档时，对话区域自动显示概要卡片和 3 个引导提问
 
 ---
 
-### 任务 2.2 刷题打卡
+### 任务 2.2 学习引导与推荐问题
 
-**目标**：基于向量库中的文档片段，自动生成选择题/填空题，用户每日刷题打卡。
+**目标**：基于文档概要，自动生成“你可能想问”的问题列表，降低用户学习门槛。
+
+#### 核心逻辑
+1. 提取文档概要中的核心知识点。
+2. LLM 生成 3-5 个由浅入深的引导性问题。
+3. 用户点击问题直接发起 RAG 对话。
+
+---
+
+### 任务 2.3 刷题打卡 (Quiz & Streak)
+
+**目标**：在用户完成文档概览和初步学习后，通过任务机制驱动持续学习。
 
 #### 改动文件
 
@@ -263,81 +268,25 @@ export interface Document {
 | `backend/src/routes/api.ts` | 修改 | 注册 `/quiz` 路由 |
 | `frontend/src/services/quizService.ts` | **新增** | 前端 API 封装 |
 | `frontend/src/pages/Quiz/index.tsx` | **新增** | 刷题页面 |
-| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 增加刷题入口 |
 
-#### 核心功能拆解（按优先级排列）
+#### 核心功能拆解
 
 | 优先级 | 功能 | 说明 |
 |--------|------|------|
 | P0 | 题目生成 | 从文档片段生成选择题（4 选项 + 答案） |
 | P0 | 答题交互 | 展示题目，选择选项，判断对错 |
 | P0 | 每日打卡 | 每天首次完成答题自动打卡，统计连续天数 |
-| P1 | 题型扩展 | 支持填空、判断、多选题 |
 | P1 | 错题回顾 | 收集答错的题目，单独出卷 |
-| P2 | 遗忘曲线 | 根据答题间隔推荐复习题目 |
-
-#### 题目生成核心逻辑
-
-```typescript
-// quiz.service.ts
-export class QuizService {
-  async generateQuestions(documentId: string, count: number = 5) {
-    // 1. 从 Chroma 随机抽取文档片段
-    const chroma = await getChromaInstance();
-    const allDocs = await chroma.get({ filter: { documentId } });
-    // 随机选取 count 个片段
-    const selectedChunks = shuffle(allDocs).slice(0, count);
-    
-    // 2. 对每个片段生成题目
-    const questions = [];
-    for (const chunk of selectedChunks) {
-      const prompt = `根据以下文档内容，生成一道选择题（4 个选项），并用 JSON 格式返回：
-      
-内容：${chunk.pageContent}
-
-输出格式：
-{"question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A", "explanation": "..."}`;
-
-      const response = await llm.invoke([new HumanMessage(prompt)]);
-      questions.push(JSON.parse(response.content as string));
-    }
-    
-    return questions;
-  }
-}
-```
-
-#### 打卡模型
-
-```typescript
-interface DailyRecord {
-  date: string;              // "2026-07-04"
-  completed: boolean;        // 是否完成今日打卡
-  totalQuestions: number;    // 答题总数
-  correctCount: number;      // 正确数
-  accuracy: number;          // 正确率
-  questions: QuestionRecord[]; // 答题详情
-}
-
-interface QuizStats {
-  currentStreak: number;     // 连续打卡天数
-  totalDays: number;         // 累计打卡天数
-  totalQuestions: number;    // 累计答题数
-  averageAccuracy: number;   // 平均正确率
-}
-```
 
 #### 验收标准
 
 - [ ] 进入刷题页：显示今日题目（5 道选择题）
-- [ ] 选择答案后：立即显示对错并展示参考答案
 - [ ] 全部答完：显示正确率，自动打卡
 - [ ] 侧边栏显示打卡状态和连续天数
-- [ ] 第二天再次进入：自动生成新题，连续天数+1
 
 ---
 
-### 任务 2.3 可视化溯源
+### 任务 2.4 可视化溯源
 
 **目标**：AI 回答中引用来源时，鼠标悬浮高亮展示原文片段，点击可跳转到文档位置。
 
@@ -459,24 +408,24 @@ res.end();
 
 ## 任务执行建议
 
-### 本周优先（Phase 1 收尾）
+### 本周优先 (Phase 1 收尾 & Phase 2 启动)
 
 ```
-任务 1.1 查询重写   →   1-2 天
-任务 1.2 HyDE 检索  →   1-2 天
-任务 1.3 多路召回   →   2-3 天
+1. 任务 1.3 多路召回 (关键词+向量)  →  2-3 天
+2. 任务 2.1 文档主动分析 (概要生成)  →  1-2 天 (核心: 概览先行)
+3. 任务 2.2 学习引导 (引导卡片)      →  1 天
 ```
 
-### 下周启动（Phase 2 首项）
+### 下周重点 (任务机制实现)
 
 ```
-任务 2.2 刷题打卡   →   4-5 天（P0 功能）
+任务 2.3 刷题打卡 (P0 功能)        →  4-5 天
 ```
 
-选择刷题打卡作为 Phase 2 首项的原因：
-- 用户黏性最高（每日回访）
-- 与现有数据的结合最自然（直接复用向量库）
-- 技术实现最独立（不影响现有问答流程）
+选择“文档分析”作为 Phase 2 启动项的原因：
+- **符合认知规律**：先概览文档（Summary）再进行深入学习或测验（Quiz）。
+- **降低门槛**：自动生成的关键词和推荐问题能有效引导用户开始对话。
+- **UI 连贯性**：完善侧边栏和对话区的初始展示，提升产品完成度。
 
 ---
 

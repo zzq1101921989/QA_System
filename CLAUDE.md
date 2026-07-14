@@ -1,57 +1,66 @@
 # CLAUDE.md - RAG QA System
 
-本项目是一个基于 Node.js (Backend) 和 React (Frontend) 构建的 RAG (Retrieval-Augmented Generation) 知识库检索系统。
+本项目是一个基于 Node.js (Backend), Python (Parser Service) 和 React (Frontend) 构建的 RAG (Retrieval-Augmented Generation) 知识库检索系统。
 
 ## 🛠 开发指令
 
-### 后端 (Backend)
+### 后端 (Backend - Node.js)
 - **目录**: `backend/`
-- **启动开发服务器**: `npm run dev` (使用 nodemon)
+- **启动开发服务器**: `npm run dev`
 - **构建**: `npm run build`
-- **启动生产服务器**: `npm start`
-- **主要技术栈**: Express, TypeScript, LangChain.js, OpenAI, ChromaDB
+- **Prisma**: `npx prisma generate` (生成客户端), `npx prisma db push` (同步数据库)
+- **主要技术栈**: Express, TypeScript, LangChain.js, Prisma (SQLite), DashScope (LLM/Embedding), ChromaDB
 
-### 前端 (Frontend)
+### 解析服务 (Parser - Python)
+- **目录**: `python-document2markdown/`
+- **启动服务**: `uvicorn app.main:app --reload --port 8200`
+- **主要技术栈**: FastAPI, OpenDataLoader PDF (Java 引擎), MarkItDown
+
+### 前端 (Frontend - React)
 - **目录**: `frontend/`
-- **启动开发服务器**: `npm run dev` (使用 Vite)
+- **启动开发服务器**: `npm run dev` (Vite)
 - **构建**: `npm run build`
-- **主要技术栈**: React 19, TypeScript, Tailwind CSS, Framer Motion, Lucide React
+- **主要技术栈**: React 19, TypeScript, Tailwind CSS 4, Framer Motion, Lucide React
 
 ## 🏗 项目结构
 
 ```text
 QA_System/
-├── backend/                # 后端 Express 服务
+├── backend/                # Node.js 调度后端
 │   ├── src/
 │   │   ├── controllers/    # 路由控制器
-│   │   ├── services/       # 核心 RAG 业务逻辑 (Ingestion, Retrieval)
-│   │   ├── core/           # 基础设施初始化 (LLM, Chroma)
-│   │   └── types/          # 后端类型定义
-├── frontend/               # 前端 React 应用
+│   │   ├── services/       # 业务逻辑 (Ask, Ingestion, Memory, Parser)
+│   │   ├── core/           # 核心客户端 (LLM, Chroma, Prisma)
+│   │   ├── prisma/         # 数据库 Schema 与迁移
+│   │   └── logs/           # 检索质量日志
+├── frontend/               # React 前端应用
 │   ├── src/
-│   │   ├── components/     # UI 组件 (原子组件 + 布局组件)
-│   │   ├── hooks/          # 业务 Hooks (useChat, useLayout)
-│   │   ├── pages/          # 页面模块 (Home)
-│   │   └── types/          # 前端类型定义
+│   │   ├── hooks/          # 业务逻辑 Hooks (useChat, useSession, useDocuments)
+│   │   ├── pages/          # 页面组件 (Home, Sidebar, ChatArea)
+│   │   ├── services/       # API 请求封装
+│   │   └── types/          # 全局类型定义
+├── python-document2markdown/ # Python 文档解析微服务
+│   ├── app/
+│   │   ├── services/       # PDF/Word/Excel 解析引擎
+│   │   └── main.py         # FastAPI 入口
 ```
 
 ## 📋 代码规范
 
 ### 通用
 - **语言**: 简体中文 (注释与文档)
-- **类型安全**: 严格使用 TypeScript，严禁 `any`。
+- **原则**: 逻辑先行，先更新 `dev-tasks.md` 再开始编码。
 
 ### 后端规范
-- **架构**: 遵循 Controller-Service-Model 分层。
-- **原则**: 强制执行单一职责原则 (SRP)，逻辑封装在 Service 类中。
-- **API**: 统一前缀 `/api`。
+- **架构**: 遵循 Controller → Service → Repository (Prisma) 分层。
+- **检索**: 必须记录检索日志到 `logs/` 供质量评估。
+- **记忆**: 会话与消息必须通过 Prisma 持久化到 SQLite。
 
 ### 前端规范
-- **设计风格**: 工业级极简美学 (实验室风)，深色主题。
-- **状态管理**: 区分 Server State 与 Local UI State。
-- **组件化**: 逻辑抽离至 Custom Hooks，UI 拆分为原子组件。
-- **适配**: 必须支持响应式移动端适配。
+- **设计风格**: 高达主题 (GUNDAM Theme)，浅蓝色网格背景，工业级极简美学。
+- **逻辑抽离**: UI 与逻辑分离，业务逻辑必须封装在 Custom Hooks 中。
 
 ## ⚙️ 环境配置
-- 后端需在 `backend/.env` 中配置 `OPENAI_API_KEY` 和 `CHROMA_URL`。
-- 前端通过 Vite Proxy 代理请求至后端 3000 端口。
+- **后端 (.env)**: `DASHSCOPE_API_KEY`, `CHROMA_URL`, `PYTHON_PARSER_URL`。
+- **数据库**: 使用 SQLite，位于 `backend/prisma/dev.db`。
+- **端口**: 前端 5173 (Proxy to 3000), 后端 3000, 解析服务 8200, Chroma 1101。

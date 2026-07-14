@@ -1,6 +1,6 @@
 import { Document } from '@langchain/core/documents';
 import type { ParserResult } from './parser.service';
-import { getChromaInstance } from '../core/chroma.client';
+import { vectorRepository } from '../repositories/vector.repository';
 
 export class IngestionService {
   /**
@@ -25,8 +25,7 @@ export class IngestionService {
    * @returns 实际入库的块数
    */
   public async embedAndStore(chunks: Document[], documentId: string): Promise<number> {
-    const chroma = await getChromaInstance();
-    const batchSize = 6; // 进一步降低 batchSize 以适配 v4 模型限制
+    const batchSize = 6; 
     
     // 为每个 chunk 注入 documentId 元数据
     const tagged = chunks.map((chunk) => {
@@ -34,11 +33,10 @@ export class IngestionService {
       return new Document({ pageContent: chunk.pageContent, metadata: meta });
     });
 
-    // 分批次入库（会调用 DashScope API 进行向量化，每个批次 6 个块）
+    // 分批次入库
     for (let i = 0; i < tagged.length; i += batchSize) {
       const batch = tagged.slice(i, i + batchSize);
-      console.log(`[IngestionService] 正在处理第 ${Math.floor(i / batchSize) + 1} 批数据 (${batch.length} 个块)...`);
-      await chroma.addDocuments(batch);
+      await vectorRepository.saveDocuments(batch);
     }
 
     return tagged.length;
@@ -46,19 +44,10 @@ export class IngestionService {
 
   /**
    * 获取所有已上传的文档列表
-   * 使用单例 getChromaInstance 确保初始化完成
    */
   public async getUploadedDocuments(): Promise<any[]> {
     try {
-      const chroma = await getChromaInstance();
-      const collection = await chroma.collection;
-
-      if (!collection) return [];
-
-      // 获取所有分块的元数据
-      const response = await collection.get({
-        include: ["metadatas"] as any
-      });
+      const response = await vectorRepository.getAllMetadatas();
 
       if (!response.metadatas || response.metadatas.length === 0) return [];
 
@@ -85,7 +74,6 @@ export class IngestionService {
       return Array.from(docMap.values());
     } catch (error: any) {
       if (error.message?.includes("does not exist")) return [];
-      console.error(`[IngestionService] 获取文档列表失败:`, error.message);
       throw error;
     }
   }
@@ -94,10 +82,6 @@ export class IngestionService {
    * 删除指定 documentId 的所有分块
    */
   public async deleteDocument(documentId: string): Promise<void> {
-    const chroma = await getChromaInstance();
-    const collection = await chroma.collection;
-    await collection?.delete({
-      where: { documentId },
-    })
+    await vectorRepository.deleteDocumentsByFilter({ documentId });
   }
 }

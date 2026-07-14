@@ -1,8 +1,6 @@
-
-
 import fs from 'fs';
 import path from 'path';
-import { getChromaInstance } from '../core/chroma.client';
+import { vectorRepository } from '../repositories/vector.repository';
 import { llm } from '../core/llm.client';
 import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { ChatMessage, memoryService } from './memory.service';
@@ -11,12 +9,8 @@ export class AskService {
 
   /**
    * 重写用户问题，生成更符合用户需求的问题和容易被向量检索的问题格式
-   * @param question 用户问题
-   * @param history 上下文历史记录
-   * @returns 重写后的问题
    */
   public async rewriteQuestion(question: string, history: ChatMessage[]): Promise<string> {
-
     const rewritePrompt = `
     ## 角色：
     你是一个专业的问答助手，负责根据用户的问题和上下文，生成更符合用户需求的问题和容易被向量检索的问题格式。
@@ -29,112 +23,124 @@ export class AskService {
     ${question}
 
     ## 规则：
-    只返回一些的问题，不要任何解释
+    只返回改写后的问题，不要任何解释
     
     改写后的问题:
     `
-    const rewrittenQuestion = await llm.invoke(rewritePrompt);
-    return rewrittenQuestion.content as string;
+    const response = await llm.invoke(rewritePrompt);
+    return response.content as string;
   }
 
   /**
-   * 处理 RAG 检索问答
-   * @param documentId 文档 ID
-   * @param question 用户问题
-   * @param sessionId 会话 ID，用于保持上下文记忆
-   * 
-   * 完整流程：
-   *   1. 向量检索 — 从 Chroma 中找出与问题最相关的 K 个分块
-   *   2. 构建 Context — 将检索结果拼接为 Prompt 上下文
-   *   3. LLM 生成 — 调用大模型参考上下文回答问题
+   * 生成假设性回答 (HyDE - Hypothetical Document Embeddings)
+   * 该技术通过生成一个“伪答案”来检索，往往比直接用“问题”检索效果更好
+   */
+  public async generateHypotheticalAnswer(question: string): Promise<string> {
+    const hydePrompt = `
+    ## 角色：
+    你是一个专业的文档编写专家。请为下面的问题生成一个假设性的、符合事实的简短回答。
+    这个回答将用于向量检索，请尽可能模拟真实文档中的陈述句式和专业表达。
+
+    ## 问题：
+    ${question}
+
+    ## 规则：
+    1. 只返回假设性的回答内容，不要任何解释或前缀。
+    2. 使用陈述句，保持专业和中立。
+    3. 尽量包含可能出现在文档中的专业术语。
+
+    假设性回答:
+    `
+    const response = await llm.invoke(hydePrompt);
+    return response.content as string;
+  }
+
+  /**
+   * 处理 RAG 检索问答 (集成 HyDE)
    */
   public async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId?: string }> {
-    // ── Step 1: 向量检索 ──────────────────────────────────
-    const chroma = await getChromaInstance();
-    const K = 5; // 召回 TOP-5 最相关分块
-
-    // 如果提供了 sessionId，则加载历史记录
+    const K = 5;
     const activeSessionId = sessionId || `session_${Date.now()}`;
     const history = await memoryService.getHistory(activeSessionId);
 
-    // 重写问题（如果有历史）
-    const finalQuestion = history.length > 0 ? await this.rewriteQuestion(question, history) : question;
+    // Step 1: 查询重写 (如果有历史)
+    const rewrittenQuestion = history.length > 0 ? await this.rewriteQuestion(question, history) : question;
 
-    const relevantDocs = await chroma.similaritySearch(finalQuestion, K, { documentId });
+    // Step 2: HyDE 生成假设性回答 (如果有历史)
+    // 否则直接使用重写后的问题
+    // 这样可以避免在没有历史上下文时，生成的假设性回答与问题不相关
+    const hypotheticalAnswer = history.length > 0 ? await this.generateHypotheticalAnswer(rewrittenQuestion) : rewrittenQuestion;
 
-    // 检查是否找到相关文档
+    // Step 3: 向量检索 (使用 HyDE 假答案检索)
+    const relevantDocs = await vectorRepository.searchSimilarDocuments(hypotheticalAnswer, {
+      k: K,
+      filter: { documentId }
+    });
+
     if (relevantDocs.length === 0) {
       return {
-        message: '知识库中未找到与问题相关的文档内容，请尝试其他问题或确认文档已正确入库。',
+        message: '知识库中未找到与问题相关的文档内容，请尝试其他问题。',
         sources: [],
       };
     }
 
-    // ── Step 2: 构建 Prompt Context ────────────────────────
+    // Step 4: 构建 Context
     const context = relevantDocs
       .map((doc, i) => `【片段 ${i + 1}】\n${doc.pageContent}`)
-      .join('\n\n---\n\n');
+      .join('\n\n---\n');
 
-    // 去重提取来源文件名
     const sourceSet = new Set<string>();
     relevantDocs.forEach((doc) => {
       if (doc.metadata?.source) sourceSet.add(String(doc.metadata.source));
     });
-    const sourceNames = Array.from(sourceSet);
 
-    // ── Step 3: 构建消息序列（含历史记忆） ──────────────────────
+    // Step 5: 构建 Prompt 并调用 LLM 回答
     const messages: BaseMessage[] = [
       new SystemMessage(
         '你是一个严谨的知识库问答助手。请严格按照以下文档内容回答用户的问题。\n\n' +
-        '规则：\n' +
-        '1. 只有在文档内容能直接支持答案时才给出回答\n' +
-        '2. 如果文档内容不足以回答问题，请如实说明"文档中未找到相关信息"\n' +
-        '3. 不要编造或推断文档中没有的信息\n' +
-        '4. 回答时引用具体片段编号（如"根据片段 1……"）\n\n' +
-        `以下是文档中与用户问题相关的内容：\n\n${context}`
+        '规则：\n1. 只有在文档内容能直接支持答案时才给出回答\n2. 文档内容不足时请说明"未找到相关信息"\n3. 不要编造\n4. 引用片段编号\n\n' +
+        `以下是相关内容：\n\n${context}`
       )
     ];
 
-    // 将历史记录转换为 LangChain 消息格式
     history.forEach(msg => {
-      if (msg.role === 'user') {
-        messages.push(new HumanMessage(msg.content));
-      } else {
-        messages.push(new AIMessage(msg.content));
-      }
+      if (msg.role === 'user') messages.push(new HumanMessage(msg.content));
+      else messages.push(new AIMessage(msg.content));
     });
 
-    // 添加当前问题
     messages.push(new HumanMessage(question));
 
-    // ── Step 4: LLM 生成 ───────────────────────────────────
     const response = await llm.invoke(messages);
     const answer = response.content as string;
 
-    // 记录本次对话到记忆管理中
+    // Step 6: 持久化记忆
     await memoryService.addMessage(activeSessionId, { role: 'user', content: question });
     await memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer });
 
-    // 保存检索日志
-    this.saveRetrievalLog(documentId, question, relevantDocs);
+    // Step 7: 检索日志记录 (包含 HyDE 信息)
+    this.saveRetrievalLog(documentId, question, relevantDocs, {
+      rewrittenQuestion,
+      hypotheticalAnswer
+    });
 
-    // 更新会话名称
     const sessionName = await memoryService.getSessionName(activeSessionId);
     if (!sessionName) {
-      await memoryService.updateSessionName(activeSessionId, question); // 会话名称默认使用问题
+      await memoryService.updateSessionName(activeSessionId, question);
     }
 
     return {
       message: answer,
-      sources: sourceNames,
+      sources: Array.from(sourceSet),
       sessionId: activeSessionId
     };
   }
 
-  /**
-   * 保存检索日志到 logs/ 目录，用于调试和审查检索质量
-   */
-  private saveRetrievalLog(documentId: string, question: string, docs: Array<{ pageContent: string; metadata?: Record<string, any> }>): void {
+  private saveRetrievalLog(
+    documentId: string,
+    question: string,
+    docs: any[],
+    debugInfo: { rewrittenQuestion: string, hypotheticalAnswer: string }
+  ): void {
     try {
       const logDir = path.resolve(__dirname, '../../logs');
       if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
@@ -142,28 +148,24 @@ export class AskService {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const logFile = path.join(logDir, `retrieval-${documentId}-${timestamp}.log`);
 
-      const lines: string[] = [
+      const lines = [
         '='.repeat(60),
-        `时间: ${new Date().toLocaleString('zh-CN')}`,
-        `文档 ID: ${documentId}`,
-        `问题: ${question}`,
+        `时间: ${new Date().toLocaleString()}`,
+        `原始问题: ${question}`,
+        `重写问题: ${debugInfo.rewrittenQuestion}`,
+        `HyDE 假设答案: ${debugInfo.hypotheticalAnswer}`,
         `召回数量: ${docs.length}`,
         '-'.repeat(60),
       ];
 
       docs.forEach((doc, i) => {
-        const source = doc.metadata?.source || '未知来源';
-        lines.push(`\n【片段 ${i + 1}】来源: ${source}`);
-        lines.push('-'.repeat(40));
+        lines.push(`\n【片段 ${i + 1}】来源: ${doc.metadata?.source || '未知'}`);
         lines.push(doc.pageContent);
       });
 
-      lines.push('', '='.repeat(60));
-
       fs.writeFileSync(logFile, lines.join('\n'), 'utf-8');
-      console.log(`[AskService] 检索日志已保存: ${logFile}`);
-    } catch (err: any) {
-      console.error(`[AskService] 保存检索日志失败:`, err.message);
+    } catch (err) {
+      // 统一拦截或忽略日志错误
     }
   }
 }

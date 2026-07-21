@@ -49,3 +49,8 @@ export type Session = Prisma.SessionModel
  * 
  */
 export type Message = Prisma.MessageModel
+/**
+ * Model Document
+ * 
+ */
+export type Document = Prisma.DocumentModel

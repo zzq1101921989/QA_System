@@ -10,4 +10,5 @@
  */
 export type * from './models/Session'
 export type * from './models/Message'
+export type * from './models/Document'
 export type * from './commonInputTypes'

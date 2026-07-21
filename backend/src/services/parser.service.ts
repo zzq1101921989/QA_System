@@ -22,19 +22,19 @@ export class ParserService {
   /**
    * 根据文件类型调用 Python 解析服务
    */
-  public async parseDocument(file: Express.Multer.File): Promise<ParserResult> {
+  public async parseDocument(file: Express.Multer.File & { fileName: string }): Promise<ParserResult> {
     const formData = new FormData();
     
     // 如果是磁盘存储，使用 createReadStream 提升性能, 避免内存不足，流式传输文件内容，边读边解析
     const fileStream = fs.createReadStream(file.path);
     formData.append('file', fileStream, {
-      filename: file.originalname,
+      filename: file.fileName,
       contentType: file.mimetype,
     });
 
     let endpoint = '/parse/pdf';
     const mimetype = file.mimetype.toLowerCase();
-    const filename = file.originalname.toLowerCase();
+    const filename = file.fileName.toLowerCase();
 
     if (mimetype === 'application/pdf') {
       endpoint = '/parse/pdf';

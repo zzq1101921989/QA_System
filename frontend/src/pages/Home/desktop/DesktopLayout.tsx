@@ -84,7 +84,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
               {selectedDocId && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-lab-accent/5 border border-lab-accent/20 hud-notch">
                   <span className="text-[9px] text-lab-accent font-display font-bold uppercase tracking-tight">
-                    Active_Asset: {selectedDoc.name}
+                    Active_Asset: {selectedDoc?.name}
                   </span>
                 </div>
               )}

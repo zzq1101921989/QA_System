@@ -69,10 +69,10 @@ export class AskService {
     // Step 2: HyDE 生成假设性回答 (如果有历史)
     // 否则直接使用重写后的问题
     // 这样可以避免在没有历史上下文时，生成的假设性回答与问题不相关
-    const hypotheticalAnswer = history.length > 0 ? await this.generateHypotheticalAnswer(rewrittenQuestion) : rewrittenQuestion;
+    // const hypotheticalAnswer = history.length > 0 ? await this.generateHypotheticalAnswer(rewrittenQuestion) : rewrittenQuestion;
 
     // Step 3: 向量检索 (使用 HyDE 假答案检索)
-    const relevantDocs = await vectorRepository.searchSimilarDocuments(hypotheticalAnswer, {
+    const relevantDocs = await vectorRepository.searchSimilarDocuments(rewrittenQuestion, {
       k: K,
       filter: { documentId }
     });
@@ -98,7 +98,7 @@ export class AskService {
     const messages: BaseMessage[] = [
       new SystemMessage(
         '你是一个严谨的知识库问答助手。请严格按照以下文档内容回答用户的问题。\n\n' +
-        '规则：\n1. 只有在文档内容能直接支持答案时才给出回答\n2. 文档内容不足时请说明"未找到相关信息"\n3. 不要编造\n4. 引用片段编号\n\n' +
+        '规则：\n1. 只有在文档内容能直接支持答案时才给出完整的文档内容\n2. 文档内容不足时请说明"未找到相关信息"\n3. 不要编造\n4. 引用片段编号\n\n' +
         `以下是相关内容：\n\n${context}`
       )
     ];
@@ -120,7 +120,7 @@ export class AskService {
     // Step 7: 检索日志记录 (包含 HyDE 信息)
     this.saveRetrievalLog(documentId, question, relevantDocs, {
       rewrittenQuestion,
-      hypotheticalAnswer
+      hypotheticalAnswer: rewrittenQuestion
     });
 
     const sessionName = await memoryService.getSessionName(activeSessionId);

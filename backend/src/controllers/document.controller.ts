@@ -53,7 +53,10 @@ export class DocumentController {
       console.log(`[DocumentController] 收到文件: ${filename}, 开始解析...`);
 
       // Step 0: 调用 Python 解析微服务，获取 Markdown
-      const parseResult = await this.parserService.parseDocument(file);
+      const parseResult = await this.parserService.parseDocument({
+        ...file,
+        fileName: filename,
+      });
 
       // 保存解析结果到 debug_parsed/ 目录，用于排查转换完整性
       writeDebugFile(filename, parseResult.markdown);
@@ -80,7 +83,7 @@ export class DocumentController {
       // 返回文档状态
       const newDoc = {
         id: documentId,
-        name: file.originalname,
+        name: filename,
         status: 'ready',
         timestamp: new Date().toLocaleString('zh-CN'),
         chunkCount,

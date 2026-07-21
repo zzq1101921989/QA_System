@@ -41,6 +41,7 @@ async def parse_pdf_to_markdown(content: bytes, filename: str) -> dict:
                     input_path=[pdf_path],
                     output_dir=output_dir,
                     format=['json', 'markdown'],
+                    image_output='off',
                 )
 
             # ── Step 3: 读取解析结果 ──────────────────────────

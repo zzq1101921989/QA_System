@@ -30,12 +30,16 @@ model Message {
 }
 
 model Document {
-  id        String   @id
-  name      String?
-  summary   String?
-  keywords  String?  // 存储为 JSON 字符串
-  outline   String?  // 存储为 JSON 字符串
-  elements  String?  // 解析后的元素组合数组，含 pageNumber、bbox 等位置信息（JSON 字符串）
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  name       String?
+  status     String   @default("processing") // 文档状态: processing, ready, error
+  chunkCount Int      @default(0)
+  page_count Int      @default(0)
+  summary    String?
+  keywords   String?  // 存储为 JSON 字符串
+  outline    String?  // 存储为 JSON 字符串
+  elements   String?  // 解析后的元素组合数组，含 pageNumber、bbox 等位置信息（JSON 字符串）
+  documentId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

@@ -2,7 +2,7 @@ export interface Document {
   id: string;
   name: string;
   status: 'processing' | 'ready' | 'error';
-  timestamp: string;
+  createdAt: string;
   chunkCount?: number;
 }
 

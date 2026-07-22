@@ -20,17 +20,33 @@ export type DocumentModel = runtime.Types.Result.DefaultSelection<Prisma.$Docume
 
 export type AggregateDocument = {
   _count: DocumentCountAggregateOutputType | null
+  _avg: DocumentAvgAggregateOutputType | null
+  _sum: DocumentSumAggregateOutputType | null
   _min: DocumentMinAggregateOutputType | null
   _max: DocumentMaxAggregateOutputType | null
+}
+
+export type DocumentAvgAggregateOutputType = {
+  chunkCount: number | null
+  page_count: number | null
+}
+
+export type DocumentSumAggregateOutputType = {
+  chunkCount: number | null
+  page_count: number | null
 }
 
 export type DocumentMinAggregateOutputType = {
   id: string | null
   name: string | null
+  status: string | null
+  chunkCount: number | null
+  page_count: number | null
   summary: string | null
   keywords: string | null
   outline: string | null
   elements: string | null
+  documentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,10 +54,14 @@ export type DocumentMinAggregateOutputType = {
 export type DocumentMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  status: string | null
+  chunkCount: number | null
+  page_count: number | null
   summary: string | null
   keywords: string | null
   outline: string | null
   elements: string | null
+  documentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,23 +69,41 @@ export type DocumentMaxAggregateOutputType = {
 export type DocumentCountAggregateOutputType = {
   id: number
   name: number
+  status: number
+  chunkCount: number
+  page_count: number
   summary: number
   keywords: number
   outline: number
   elements: number
+  documentId: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type DocumentAvgAggregateInputType = {
+  chunkCount?: true
+  page_count?: true
+}
+
+export type DocumentSumAggregateInputType = {
+  chunkCount?: true
+  page_count?: true
+}
+
 export type DocumentMinAggregateInputType = {
   id?: true
   name?: true
+  status?: true
+  chunkCount?: true
+  page_count?: true
   summary?: true
   keywords?: true
   outline?: true
   elements?: true
+  documentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -73,10 +111,14 @@ export type DocumentMinAggregateInputType = {
 export type DocumentMaxAggregateInputType = {
   id?: true
   name?: true
+  status?: true
+  chunkCount?: true
+  page_count?: true
   summary?: true
   keywords?: true
   outline?: true
   elements?: true
+  documentId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -84,10 +126,14 @@ export type DocumentMaxAggregateInputType = {
 export type DocumentCountAggregateInputType = {
   id?: true
   name?: true
+  status?: true
+  chunkCount?: true
+  page_count?: true
   summary?: true
   keywords?: true
   outline?: true
   elements?: true
+  documentId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -131,6 +177,18 @@ export type DocumentAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DocumentAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DocumentSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DocumentMinAggregateInputType
@@ -161,6 +219,8 @@ export type DocumentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: DocumentCountAggregateInputType | true
+  _avg?: DocumentAvgAggregateInputType
+  _sum?: DocumentSumAggregateInputType
   _min?: DocumentMinAggregateInputType
   _max?: DocumentMaxAggregateInputType
 }
@@ -168,13 +228,19 @@ export type DocumentGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type DocumentGroupByOutputType = {
   id: string
   name: string | null
+  status: string
+  chunkCount: number
+  page_count: number
   summary: string | null
   keywords: string | null
   outline: string | null
   elements: string | null
+  documentId: string
   createdAt: Date
   updatedAt: Date
   _count: DocumentCountAggregateOutputType | null
+  _avg: DocumentAvgAggregateOutputType | null
+  _sum: DocumentSumAggregateOutputType | null
   _min: DocumentMinAggregateOutputType | null
   _max: DocumentMaxAggregateOutputType | null
 }
@@ -200,10 +266,14 @@ export type DocumentWhereInput = {
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   id?: Prisma.StringFilter<"Document"> | string
   name?: Prisma.StringNullableFilter<"Document"> | string | null
+  status?: Prisma.StringFilter<"Document"> | string
+  chunkCount?: Prisma.IntFilter<"Document"> | number
+  page_count?: Prisma.IntFilter<"Document"> | number
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
+  documentId?: Prisma.StringFilter<"Document"> | string
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
 }
@@ -211,10 +281,14 @@ export type DocumentWhereInput = {
 export type DocumentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -225,10 +299,14 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DocumentWhereInput[]
   NOT?: Prisma.DocumentWhereInput | Prisma.DocumentWhereInput[]
   name?: Prisma.StringNullableFilter<"Document"> | string | null
+  status?: Prisma.StringFilter<"Document"> | string
+  chunkCount?: Prisma.IntFilter<"Document"> | number
+  page_count?: Prisma.IntFilter<"Document"> | number
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
+  documentId?: Prisma.StringFilter<"Document"> | string
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
 }, "id">
@@ -236,15 +314,21 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
 export type DocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DocumentCountOrderByAggregateInput
+  _avg?: Prisma.DocumentAvgOrderByAggregateInput
   _max?: Prisma.DocumentMaxOrderByAggregateInput
   _min?: Prisma.DocumentMinOrderByAggregateInput
+  _sum?: Prisma.DocumentSumOrderByAggregateInput
 }
 
 export type DocumentScalarWhereWithAggregatesInput = {
@@ -253,32 +337,44 @@ export type DocumentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DocumentScalarWhereWithAggregatesInput | Prisma.DocumentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Document"> | string
   name?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  status?: Prisma.StringWithAggregatesFilter<"Document"> | string
+  chunkCount?: Prisma.IntWithAggregatesFilter<"Document"> | number
+  page_count?: Prisma.IntWithAggregatesFilter<"Document"> | number
   summary?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   outline?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   elements?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  documentId?: Prisma.StringWithAggregatesFilter<"Document"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
 }
 
 export type DocumentCreateInput = {
-  id: string
+  id?: string
   name?: string | null
+  status?: string
+  chunkCount?: number
+  page_count?: number
   summary?: string | null
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type DocumentUncheckedCreateInput = {
-  id: string
+  id?: string
   name?: string | null
+  status?: string
+  chunkCount?: number
+  page_count?: number
   summary?: string | null
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -286,10 +382,14 @@ export type DocumentUncheckedCreateInput = {
 export type DocumentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkCount?: Prisma.IntFieldUpdateOperationsInput | number
+  page_count?: Prisma.IntFieldUpdateOperationsInput | number
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -297,21 +397,29 @@ export type DocumentUpdateInput = {
 export type DocumentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkCount?: Prisma.IntFieldUpdateOperationsInput | number
+  page_count?: Prisma.IntFieldUpdateOperationsInput | number
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentCreateManyInput = {
-  id: string
+  id?: string
   name?: string | null
+  status?: string
+  chunkCount?: number
+  page_count?: number
   summary?: string | null
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -319,10 +427,14 @@ export type DocumentCreateManyInput = {
 export type DocumentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkCount?: Prisma.IntFieldUpdateOperationsInput | number
+  page_count?: Prisma.IntFieldUpdateOperationsInput | number
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -330,10 +442,14 @@ export type DocumentUpdateManyMutationInput = {
 export type DocumentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  chunkCount?: Prisma.IntFieldUpdateOperationsInput | number
+  page_count?: Prisma.IntFieldUpdateOperationsInput | number
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -341,21 +457,34 @@ export type DocumentUncheckedUpdateManyInput = {
 export type DocumentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type DocumentAvgOrderByAggregateInput = {
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
 }
 
 export type DocumentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -363,12 +492,29 @@ export type DocumentMaxOrderByAggregateInput = {
 export type DocumentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type DocumentSumOrderByAggregateInput = {
+  chunkCount?: Prisma.SortOrder
+  page_count?: Prisma.SortOrder
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 
@@ -376,10 +522,14 @@ export type DocumentMinOrderByAggregateInput = {
 export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  status?: boolean
+  chunkCount?: boolean
+  page_count?: boolean
   summary?: boolean
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["document"]>
@@ -387,10 +537,14 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  status?: boolean
+  chunkCount?: boolean
+  page_count?: boolean
   summary?: boolean
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["document"]>
@@ -398,10 +552,14 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  status?: boolean
+  chunkCount?: boolean
+  page_count?: boolean
   summary?: boolean
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["document"]>
@@ -409,15 +567,19 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type DocumentSelectScalar = {
   id?: boolean
   name?: boolean
+  status?: boolean
+  chunkCount?: boolean
+  page_count?: boolean
   summary?: boolean
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "summary" | "keywords" | "outline" | "elements" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "chunkCount" | "page_count" | "summary" | "keywords" | "outline" | "elements" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 
 export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Document"
@@ -425,10 +587,14 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string | null
+    status: string
+    chunkCount: number
+    page_count: number
     summary: string | null
     keywords: string | null
     outline: string | null
     elements: string | null
+    documentId: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["document"]>
@@ -856,10 +1022,14 @@ export interface Prisma__DocumentClient<T, Null = never, ExtArgs extends runtime
 export interface DocumentFieldRefs {
   readonly id: Prisma.FieldRef<"Document", 'String'>
   readonly name: Prisma.FieldRef<"Document", 'String'>
+  readonly status: Prisma.FieldRef<"Document", 'String'>
+  readonly chunkCount: Prisma.FieldRef<"Document", 'Int'>
+  readonly page_count: Prisma.FieldRef<"Document", 'Int'>
   readonly summary: Prisma.FieldRef<"Document", 'String'>
   readonly keywords: Prisma.FieldRef<"Document", 'String'>
   readonly outline: Prisma.FieldRef<"Document", 'String'>
   readonly elements: Prisma.FieldRef<"Document", 'String'>
+  readonly documentId: Prisma.FieldRef<"Document", 'String'>
   readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>
 }

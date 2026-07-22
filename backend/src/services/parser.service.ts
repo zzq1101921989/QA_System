@@ -8,7 +8,11 @@ export interface ParserResult {
   content_type: string;
   markdown: string;
   elements: any[];
-  metadata: any;
+  metadata: {
+    size: number;
+    source: string;
+    page_count: number;
+  };
 }
 
 export class ParserService {
@@ -72,5 +76,14 @@ export class ParserService {
         fs.unlinkSync(file.path);
       }
     }
+  }
+
+  /**
+   * 生成标签
+   * @param markdown 
+   * @returns 
+   */
+  public async generateLabel(markdown: string): Promise<string> {
+    return markdown;
   }
 }

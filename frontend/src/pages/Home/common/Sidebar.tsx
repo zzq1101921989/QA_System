@@ -249,8 +249,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     </div>
                   )}
                 <div className="flex items-center gap-3 text-[10px] font-mono text-lab-text/40 mt-1">
-                  <span>{doc.timestamp}</span>
-                  {doc.chunkCount && (
+                  <span>{new Date(doc.createdAt).toLocaleString('zh-CN', { 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}</span>
+                  {doc.chunkCount !== undefined && (
                     <span className="bg-lab-text/5 px-1.5 py-0.5 rounded border border-lab-text/5 uppercase">
                       {doc.chunkCount} 分块
                     </span>

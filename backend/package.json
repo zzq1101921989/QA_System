@@ -7,6 +7,7 @@
     "build": "tsc",
     "start": "node dist/src/app.js",
     "db:studio": "npx prisma studio",
+    "db:sync": "npx prisma generate && npx prisma db push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

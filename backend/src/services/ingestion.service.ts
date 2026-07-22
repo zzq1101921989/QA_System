@@ -1,6 +1,7 @@
 import { Document } from '@langchain/core/documents';
 import type { ParserResult } from './parser.service';
 import { vectorRepository } from '../repositories/vector.repository';
+import { documentRepository } from '../repositories/document.repository';
 
 export class IngestionService {
   /**
@@ -10,11 +11,21 @@ export class IngestionService {
     return new Document({
       pageContent: parseResult.markdown,
       metadata: {
-        source: parseResult.filename,
         content_type: parseResult.content_type,
         documentId,
         ...parseResult.metadata,
       },
+    });
+  }
+
+  public async uploadDocument(parseResult: ParserResult & { documentId: string, chunkCount: number }) {
+    return await documentRepository.create({
+      documentId: parseResult.documentId,
+      name: parseResult.metadata.source,
+      status: 'ready',
+      chunkCount: parseResult.chunkCount || 0,
+      pageCount: parseResult.metadata.page_count || 0,
+      elements: JSON.stringify(parseResult.elements),
     });
   }
 
@@ -43,45 +54,26 @@ export class IngestionService {
   }
 
   /**
-   * 获取所有已上传的文档列表
+   * 获取所有已上传的文档列表 (从数据库获取)
    */
   public async getUploadedDocuments(): Promise<any[]> {
-    try {
-      const response = await vectorRepository.getAllMetadatas();
-
-      if (!response.metadatas || response.metadatas.length === 0) return [];
-
-      // 按 documentId 进行聚合去重
-      const docMap = new Map<string, any>();
-      
-      response.metadatas.forEach((meta: any) => {
-        if (meta && meta.documentId && !docMap.has(meta.documentId)) {
-          docMap.set(meta.documentId, {
-            id: meta.documentId,
-            name: meta.source || "未知文档",
-            status: "ready",
-            timestamp: meta.timestamp || "未知时间",
-            chunkCount: 0 
-          });
-        }
-        
-        if (meta && meta.documentId) {
-          const doc = docMap.get(meta.documentId);
-          doc.chunkCount += 1;
-        }
-      });
-
-      return Array.from(docMap.values());
-    } catch (error: any) {
-      if (error.message?.includes("does not exist")) return [];
-      throw error;
-    }
+    const docs = await documentRepository.findAll();
+    return docs.map(doc => ({
+      id: doc.documentId, // 保持向后兼容，前端使用 documentId 作为标识
+      name: doc.name || "未知文档",
+      status: doc.status,
+      createdAt: doc.createdAt,
+      chunkCount: doc.chunkCount
+    }));
   }
 
   /**
-   * 删除指定 documentId 的所有分块
+   * 删除指定 documentId 的所有分块及数据库记录
    */
   public async deleteDocument(documentId: string): Promise<void> {
+    // 1. 删除向量库分块
     await vectorRepository.deleteDocumentsByFilter({ documentId });
+    // 2. 删除数据库记录
+    await documentRepository.deleteByDocumentId(documentId);
   }
 }

@@ -61,7 +61,6 @@ export class DocumentController {
       // 保存解析结果到 debug_parsed/ 目录，用于排查转换完整性
       writeDebugFile(filename, parseResult.markdown);
       writeDebugFile(filename + '_elements.json', JSON.stringify(parseResult.elements));
-      console.log(`[DocumentController] 解析结果已保存到 ${getDebugFileName(filename)}`);
 
       // Step 1: Load - 将 Markdown 加载为 LangChain Document
       const documentId = Math.random().toString(36).substr(2, 9);
@@ -80,19 +79,16 @@ export class DocumentController {
       const chunkCount = await this.ingestionService.embedAndStore(chunks, documentId);
       console.log(`[DocumentController] 文档已入库: ${chunkCount} 个向量块`);
 
-      // 返回文档状态
-      const newDoc = {
-        id: documentId,
-        name: filename,
-        status: 'ready',
-        timestamp: new Date().toLocaleString('zh-CN'),
-        chunkCount,
-        metadata: {
-          ...parseResult.metadata,
-        },
-      };
+      // Step 5: 生成Document记录
+      const uploadedDoc = await this.ingestionService.uploadDocument({...parseResult, documentId, chunkCount});
 
-      res.status(200).json(newDoc);
+      res.status(200).json({
+        id: uploadedDoc.documentId,
+        name: uploadedDoc.name,
+        status: uploadedDoc.status,
+        createdAt: uploadedDoc.createdAt,
+        chunkCount: uploadedDoc.chunkCount
+      });
     } catch (error) {
       next(error);
     }

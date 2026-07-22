@@ -688,10 +688,14 @@ export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeo
 export const DocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  status: 'status',
+  chunkCount: 'chunkCount',
+  page_count: 'page_count',
   summary: 'summary',
   keywords: 'keywords',
   outline: 'outline',
   elements: 'elements',
+  documentId: 'documentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -739,6 +743,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 /**

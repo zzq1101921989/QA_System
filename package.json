@@ -1,0 +1,27 @@
+{
+  "name": "qa_system",
+  "version": "1.0.0",
+  "description": "基于 Node.js、Python 和 React 构建的现代 RAG（检索增强生成）知识库系统。支持 PDF/Word/Excel 文档上传、智能解析、语义分块、向量化存储及智能化问答。",
+  "main": "index.js",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:python": "cd python-document2markdown && venv\\Scripts\\python -m uvicorn app.main:app --reload --port 8200",
+    "dev": "concurrently --kill-others \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:python\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zzq1101921989/QA_System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zzq1101921989/QA_System/issues"
+  },
+  "homepage": "https://github.com/zzq1101921989/QA_System#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}

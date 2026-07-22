@@ -93,10 +93,14 @@ export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeo
 export const DocumentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  status: 'status',
+  chunkCount: 'chunkCount',
+  page_count: 'page_count',
   summary: 'summary',
   keywords: 'keywords',
   outline: 'outline',
   elements: 'elements',
+  documentId: 'documentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

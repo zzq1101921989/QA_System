@@ -134,8 +134,8 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                         )}
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-lab-text/30 font-mono">
-                        <span>{doc.timestamp}</span>
-                        {doc.chunkCount && <span>{doc.chunkCount} 分块</span>}
+                        <span>{new Date(doc.createdAt).toLocaleDateString('zh-CN')}</span>
+                        {doc.chunkCount !== undefined && <span>{doc.chunkCount} 分块</span>}
                       </div>
                     </div>
                   ))

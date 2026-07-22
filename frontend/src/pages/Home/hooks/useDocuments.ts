@@ -42,7 +42,7 @@ export function useDocuments() {
       id: tempId,
       name: file.name,
       status: 'processing',
-      timestamp: new Date().toLocaleString('zh-CN'),
+      createdAt: new Date().toISOString(),
       chunkCount: 0
     };
     

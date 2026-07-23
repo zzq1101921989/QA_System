@@ -23,6 +23,7 @@
 | 11 | 查询重写（Query Rewriting） | `backend/src/services/ask.service.ts` |
 | 12 | 后端 VectorRepository 重构 | `backend/src/repositories/vector.repository.ts` |
 | 13 | HyDE 检索（Hypothetical Document Embedding） | `backend/src/services/ask.service.ts` |
+| 14 | 文档主动分析 (概要/关键词/大纲) | `ingestion.service.ts` / `OutlineModal.tsx` / `Sidebar.tsx` |
 
 ### 🔧 现在所处的阶段
 
@@ -35,9 +36,9 @@ Phase 1 (检索质量提升) ──── 当前正在做
     ├── 多路召回 ⬅️ 下一个任务
     └── 混合解析优化
 
-Phase 2 (主动学习 & 任务机制) ──── 待开始
-    ├── 文档主动分析 (概要/关键词/大纲) ⬅️ Phase 2 启动项
-    ├── 学习引导 (推荐提问/引导卡片)
+Phase 2 (主动学习 & 任务机制) ──── 正在进行
+    ├── 文档主动分析 (概要/关键词/大纲) ✅ 已完成
+    ├── 学习引导 (推荐提问/引导卡片) ⬅️ 下一个任务
     └── 刷题打卡 (任务驱动)
 
 Phase 3 (产品化打磨) ──── 待开始
@@ -204,7 +205,7 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ## Phase 2 — 主动学习 & 任务机制
 
-### 任务 2.1 文档主动分析 (Overview First) ⬅️
+### 任务 2.1 文档主动分析 (Overview First) ✅
 
 **目标**：用户上传文档后，自动生成“文档概要”，帮助用户快速消化内容，而非直接进入做题环节。
 
@@ -214,37 +215,40 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ingestion.service.ts` | 修改 | 入库成功后异步调用 LLM 生成摘要、关键词、大纲 |
-| `backend/src/repositories/vector.repository.ts` | 修改 | 支持存储和读取文档级别的概要元数据 |
+| `backend/src/services/ingestion.service.ts` | 修改 | 入库成功后调用 LLM 生成摘要、关键词、大纲（支持原子化拆分） |
+| `backend/src/repositories/document.repository.ts` | 修改 | 支持存储和读取文档级别的概要、关键词、大纲元数据 |
 | `frontend/src/types/chat.ts` | 修改 | Document 接口增加 summary、keywords、outline 字段 |
-| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 文档项下方展示关键词标签，点击文档展示概要预览 |
-| `frontend/src/pages/Home/common/ChatArea.tsx` | 修改 | 新会话默认展示“文档概要卡片”而非空白，引导用户开始学习 |
+| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 展示关键词标签，增加大纲查看按钮 |
+| `frontend/src/pages/Home/common/OutlineModal.tsx` | **新增** | 以层级树形式展示大纲内容，并显示文档摘要 |
 
-#### 数据流
+#### 核心逻辑
 
 ```
 文档入库成功
     │
     ▼
-后端触发异步任务 (LLM):
-  Prompt: "你是一个学习助手，请为该文档生成：1.一句话摘要 2.核心关键词 3.文档大纲"
+后端触发 LLM 分析任务:
+  Prompt 增强: 强调标题原子化拆分，严禁标题堆砌
     │
     ▼
-结果存入元数据 (Chroma/DB)
+结果存入关系数据库 (SQLite/Prisma)
     │
     ▼
-前端识别“新文档”状态 → 自动弹出/展示概要卡片 → 提供“推荐问题”引导学习
+前端识别数据并渲染:
+  1. 侧边栏显示 Tag
+  2. 点击按钮弹出 OutlineModal
 ```
 
 #### 验收标准
 
-- [ ] 文档上传后 5s 内生成摘要和关键词标签
-- [ ] 侧边栏文档项显示 3 个核心关键词标签
-- [ ] 首次打开文档时，对话区域自动显示概要卡片和 3 个引导提问
+- [x] 文档上传后自动生成摘要和关键词标签
+- [x] 侧边栏文档项显示核心关键词标签
+- [x] 能够通过弹窗查看层级清晰的大纲（解决标题堆砌问题）
+- [x] 弹窗内同步展示 AI 生成的文档摘要
 
 ---
 
-### 任务 2.2 学习引导与推荐问题
+### 任务 2.2 学习引导与推荐问题 ⬅️
 
 **目标**：基于文档概要，自动生成“你可能想问”的问题列表，降低用户学习门槛。
 

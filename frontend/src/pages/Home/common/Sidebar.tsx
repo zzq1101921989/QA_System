@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Database, Plus, FileText, CheckCircle2, X, Loader2, MessageSquarePlus, MessageSquare, Trash2, Palette, Pencil, Check } from 'lucide-react';
+import { Database, Plus, FileText, CheckCircle2, X, Loader2, MessageSquarePlus, MessageSquare, Trash2, Palette, Pencil, Check, List, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Document, SessionMessage } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { UploadModal } from './UploadModal';
+import { OutlineModal } from './OutlineModal';
 import { useTheme, themes } from '../../../hooks/useTheme';
 
 function cn(...inputs: ClassValue[]) {
@@ -47,6 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOutlineOpen, setIsOutlineOpen] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState<Document | null>(null);
   const { themeId, switchTheme } = useTheme();
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -93,6 +96,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         onClose={() => setIsModalOpen(false)}
         onUpload={onUpload}
         isUploading={isUploading}
+      />
+
+      <OutlineModal 
+        isOpen={isOutlineOpen}
+        onClose={() => {
+          setIsOutlineOpen(false);
+          setViewingDoc(null);
+        }}
+        document={viewingDoc}
       />
 
       <div className="flex-1 overflow-y-auto custom-scrollbar px-2 space-y-6">
@@ -214,12 +226,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
+                      {doc.status === 'ready' && doc.outline && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setViewingDoc(doc);
+                            setIsOutlineOpen(true);
+                          }}
+                          className="p-1 text-lab-accent hover:bg-lab-accent/10 rounded-md transition-all"
+                          title="查看大纲"
+                        >
+                          <List className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onDeleteDocument(doc.id);
                         }}
-                        className="p-0.5 text-lab-text/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                        className="p-1 text-lab-text/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                         title="删除文档"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -248,6 +273,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       />
                     </div>
                   )}
+                {doc.status === 'ready' && doc.keywords && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {doc.keywords.split(',').map((kw, i) => (
+                      <span key={i} className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-lab-accent/5 border border-lab-accent/10 text-[9px] text-lab-accent/70 font-medium">
+                        <Tag className="w-2 h-2" />
+                        {kw.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="flex items-center gap-3 text-[10px] font-mono text-lab-text/40 mt-1">
                   <span>{new Date(doc.createdAt).toLocaleString('zh-CN', { 
                     month: '2-digit', 

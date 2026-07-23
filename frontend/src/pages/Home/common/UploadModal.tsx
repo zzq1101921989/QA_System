@@ -137,6 +137,15 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                         <span>{new Date(doc.createdAt).toLocaleDateString('zh-CN')}</span>
                         {doc.chunkCount !== undefined && <span>{doc.chunkCount} 分块</span>}
                       </div>
+                      {doc.keywords && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {doc.keywords.split(',').slice(0, 3).map((kw, i) => (
+                            <span key={i} className="px-1 py-0.5 rounded bg-lab-text/5 text-[8px] text-lab-text/40">
+                              {kw.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))
                 )}

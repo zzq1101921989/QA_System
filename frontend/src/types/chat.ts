@@ -4,6 +4,9 @@ export interface Document {
   status: 'processing' | 'ready' | 'error';
   createdAt: string;
   chunkCount?: number;
+  summary?: string;
+  keywords?: string;
+  outline?: any[];
 }
 
 export interface Message {

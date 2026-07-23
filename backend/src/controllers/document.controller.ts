@@ -87,7 +87,10 @@ export class DocumentController {
         name: uploadedDoc.name,
         status: uploadedDoc.status,
         createdAt: uploadedDoc.createdAt,
-        chunkCount: uploadedDoc.chunkCount
+        chunkCount: uploadedDoc.chunkCount,
+        summary: uploadedDoc.summary,
+        keywords: uploadedDoc.keywords,
+        outline: uploadedDoc.outline ? JSON.parse(uploadedDoc.outline) : []
       });
     } catch (error) {
       next(error);

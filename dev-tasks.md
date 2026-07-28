@@ -24,6 +24,7 @@
 | 12 | 后端 VectorRepository 重构 | `backend/src/repositories/vector.repository.ts` |
 | 13 | HyDE 检索（Hypothetical Document Embedding） | `backend/src/services/ask.service.ts` |
 | 14 | 文档主动分析 (概要/关键词/大纲) | `ingestion.service.ts` / `OutlineModal.tsx` / `Sidebar.tsx` |
+| 15 | 原文高保真预览与大纲分栏 | `DocumentViewer.tsx` / `OutlineModal.tsx` / `document.controller.ts` |
 
 ### 🔧 现在所处的阶段
 
@@ -38,6 +39,7 @@ Phase 1 (检索质量提升) ──── 当前正在做
 
 Phase 2 (主动学习 & 任务机制) ──── 正在进行
     ├── 文档主动分析 (概要/关键词/大纲) ✅ 已完成
+    ├── 原文高保真预览与大纲分栏 ✅ 已完成
     ├── 学习引导 (推荐提问/引导卡片) ⬅️ 下一个任务
     └── 刷题打卡 (任务驱动)
 

@@ -7,6 +7,8 @@ export interface CreateDocumentDto {
   chunkCount: number;
   pageCount: number;
   elements: string;
+  filePath?: string;
+  mimeType?: string;
   summary?: string;
   keywords?: string;
   outline?: string;
@@ -22,6 +24,8 @@ export class DocumentRepository {
         chunkCount: data.chunkCount,
         page_count: data.pageCount,
         elements: data.elements,
+        filePath: data.filePath,
+        mimeType: data.mimeType,
         summary: data.summary,
         keywords: data.keywords,
         outline: data.outline,

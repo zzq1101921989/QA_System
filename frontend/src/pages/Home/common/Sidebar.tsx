@@ -53,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { themeId, switchTheme } = useTheme();
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
+  const [docToDelete, setDocToDelete] = useState<Document | null>(null);
 
   return (
     <div className="flex flex-col h-full bg-lab-panel overflow-hidden">
@@ -242,7 +243,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteDocument(doc.id);
+                          setDocToDelete(doc);
                         }}
                         className="p-1 text-lab-text/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                         title="删除文档"
@@ -328,6 +329,59 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>V1.1.0</span>
         </div>
       </div>
+
+      {/* 自定义删除确认弹窗 */}
+      {docToDelete && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setDocToDelete(null)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-sm bg-lab-panel border border-red-500/30 rounded-2xl shadow-2xl shadow-red-500/10 overflow-hidden"
+          >
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                  <Trash2 className="w-5 h-5 text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-lab-text">确认删除文档？</h3>
+                  <p className="text-xs text-lab-text/40 font-mono">WARNING: DESTRUCTIVE ACTION</p>
+                </div>
+              </div>
+              <p className="text-sm text-lab-text/70 leading-relaxed mb-6">
+                即将删除 <span className="font-bold text-red-400">"{docToDelete.name}"</span>。
+                <br />
+                此操作将从数据库和向量库中永久移除该文档的所有解析内容，且不可恢复。
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDocToDelete(null)}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-lab-border text-lab-text/60 font-bold hover:bg-lab-text/5 hover:text-lab-text transition-all"
+                >
+                  取消 (CANCEL)
+                </button>
+                <button
+                  onClick={() => {
+                    onDeleteDocument(docToDelete.id);
+                    setDocToDelete(null);
+                  }}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-red-500/10 text-red-400 font-bold border border-red-500/20 hover:bg-red-500 hover:text-white transition-all shadow-[0_0_15px_rgba(239,68,68,0.15)] hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                >
+                  确认删除 (CONFIRM)
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, X, FileText, CheckCircle2, AlertCircle, Trash2, Database, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, CheckCircle2, AlertCircle, Database, Loader2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { Document } from '../../../types/chat';

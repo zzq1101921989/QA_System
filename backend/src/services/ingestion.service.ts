@@ -19,6 +19,11 @@ export class IngestionService {
     });
   }
 
+  /**
+   * 从解析结果中提取摘要、关键词和大纲
+   * @param parseResult 
+   * @returns 
+   */
   public async generateSummaryKeywordsOutline(parseResult: ParserResult) {
     const promtp = `
       ## 角色定义：
@@ -84,10 +89,8 @@ export class IngestionService {
     }
   }
 
-  public async uploadDocument(parseResult: ParserResult & { documentId: string, chunkCount: number }) {
+  public async uploadDocument(parseResult: ParserResult & { documentId: string, chunkCount: number, filePath?: string, mimeType?: string }) {
     const { summary, keywords, outline } = await this.generateSummaryKeywordsOutline(parseResult);
-
-    console.log(summary, keywords, outline, 'summary, keywords, outline');
 
     return await documentRepository.create({
       summary,
@@ -99,6 +102,8 @@ export class IngestionService {
       chunkCount: parseResult.chunkCount || 0,
       pageCount: parseResult.metadata.page_count || 0,
       elements: JSON.stringify(parseResult.elements),
+      filePath: parseResult.filePath,
+      mimeType: parseResult.mimeType,
     });
   }
 

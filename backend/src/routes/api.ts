@@ -14,6 +14,7 @@ const chatController = new ChatController();
  */
 router.post('/documents/upload', upload.single('file'), (req, res, next) => documentController.upload(req, res, next));
 router.get('/documents', (req, res, next) => documentController.list(req, res, next));
+router.get('/documents/:id/file', (req, res, next) => documentController.getFile(req, res, next));
 
 /**
  * 问答检索相关路由

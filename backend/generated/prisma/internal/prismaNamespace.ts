@@ -695,6 +695,8 @@ export const DocumentScalarFieldEnum = {
   keywords: 'keywords',
   outline: 'outline',
   elements: 'elements',
+  filePath: 'filePath',
+  mimeType: 'mimeType',
   documentId: 'documentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

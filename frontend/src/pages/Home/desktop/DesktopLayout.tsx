@@ -101,14 +101,15 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
           </div>
         </header>
 
-        <ChatArea messages={messages} isAsking={isAsking} />
-
-        <InputBar
-          input={input}
-          setInput={setInput}
-          onSend={onSend}
-          placeholder={selectedDocId ? "针对选定文档提问..." : "在全局知识库中检索..."}
-        />
+        <div className="flex-1 flex flex-col min-w-0">
+          <ChatArea messages={messages} isAsking={isAsking} />
+          <InputBar 
+            input={input}
+            setInput={setInput}
+            onSend={onSend}
+            placeholder={selectedDocId ? "针对选定文档提问..." : "在全局知识库中检索..."}
+          />
+        </div>
       </main>
     </div>
   );

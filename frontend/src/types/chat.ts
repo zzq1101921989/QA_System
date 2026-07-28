@@ -7,6 +7,8 @@ export interface Document {
   summary?: string;
   keywords?: string;
   outline?: any[];
+  filePath?: string;
+  mimeType?: string;
 }
 
 export interface Message {

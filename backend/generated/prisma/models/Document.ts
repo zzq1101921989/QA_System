@@ -46,6 +46,8 @@ export type DocumentMinAggregateOutputType = {
   keywords: string | null
   outline: string | null
   elements: string | null
+  filePath: string | null
+  mimeType: string | null
   documentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,8 @@ export type DocumentMaxAggregateOutputType = {
   keywords: string | null
   outline: string | null
   elements: string | null
+  filePath: string | null
+  mimeType: string | null
   documentId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -76,6 +80,8 @@ export type DocumentCountAggregateOutputType = {
   keywords: number
   outline: number
   elements: number
+  filePath: number
+  mimeType: number
   documentId: number
   createdAt: number
   updatedAt: number
@@ -103,6 +109,8 @@ export type DocumentMinAggregateInputType = {
   keywords?: true
   outline?: true
   elements?: true
+  filePath?: true
+  mimeType?: true
   documentId?: true
   createdAt?: true
   updatedAt?: true
@@ -118,6 +126,8 @@ export type DocumentMaxAggregateInputType = {
   keywords?: true
   outline?: true
   elements?: true
+  filePath?: true
+  mimeType?: true
   documentId?: true
   createdAt?: true
   updatedAt?: true
@@ -133,6 +143,8 @@ export type DocumentCountAggregateInputType = {
   keywords?: true
   outline?: true
   elements?: true
+  filePath?: true
+  mimeType?: true
   documentId?: true
   createdAt?: true
   updatedAt?: true
@@ -235,6 +247,8 @@ export type DocumentGroupByOutputType = {
   keywords: string | null
   outline: string | null
   elements: string | null
+  filePath: string | null
+  mimeType: string | null
   documentId: string
   createdAt: Date
   updatedAt: Date
@@ -273,6 +287,8 @@ export type DocumentWhereInput = {
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Document"> | string | null
+  mimeType?: Prisma.StringNullableFilter<"Document"> | string | null
   documentId?: Prisma.StringFilter<"Document"> | string
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -288,6 +304,8 @@ export type DocumentOrderByWithRelationInput = {
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -306,6 +324,8 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Document"> | string | null
+  mimeType?: Prisma.StringNullableFilter<"Document"> | string | null
   documentId?: Prisma.StringFilter<"Document"> | string
   createdAt?: Prisma.DateTimeFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Document"> | Date | string
@@ -321,6 +341,8 @@ export type DocumentOrderByWithAggregationInput = {
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -344,6 +366,8 @@ export type DocumentScalarWhereWithAggregatesInput = {
   keywords?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   outline?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   elements?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  filePath?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  mimeType?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   documentId?: Prisma.StringWithAggregatesFilter<"Document"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Document"> | Date | string
@@ -359,6 +383,8 @@ export type DocumentCreateInput = {
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  filePath?: string | null
+  mimeType?: string | null
   documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -374,6 +400,8 @@ export type DocumentUncheckedCreateInput = {
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  filePath?: string | null
+  mimeType?: string | null
   documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -389,6 +417,8 @@ export type DocumentUpdateInput = {
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -404,6 +434,8 @@ export type DocumentUncheckedUpdateInput = {
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -419,6 +451,8 @@ export type DocumentCreateManyInput = {
   keywords?: string | null
   outline?: string | null
   elements?: string | null
+  filePath?: string | null
+  mimeType?: string | null
   documentId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -434,6 +468,8 @@ export type DocumentUpdateManyMutationInput = {
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -449,6 +485,8 @@ export type DocumentUncheckedUpdateManyInput = {
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   documentId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,6 +502,8 @@ export type DocumentCountOrderByAggregateInput = {
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -484,6 +524,8 @@ export type DocumentMaxOrderByAggregateInput = {
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -499,6 +541,8 @@ export type DocumentMinOrderByAggregateInput = {
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
   elements?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
+  mimeType?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -529,6 +573,8 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  filePath?: boolean
+  mimeType?: boolean
   documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -544,6 +590,8 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  filePath?: boolean
+  mimeType?: boolean
   documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -559,6 +607,8 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  filePath?: boolean
+  mimeType?: boolean
   documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -574,12 +624,14 @@ export type DocumentSelectScalar = {
   keywords?: boolean
   outline?: boolean
   elements?: boolean
+  filePath?: boolean
+  mimeType?: boolean
   documentId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "chunkCount" | "page_count" | "summary" | "keywords" | "outline" | "elements" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "chunkCount" | "page_count" | "summary" | "keywords" | "outline" | "elements" | "filePath" | "mimeType" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 
 export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Document"
@@ -594,6 +646,8 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     keywords: string | null
     outline: string | null
     elements: string | null
+    filePath: string | null
+    mimeType: string | null
     documentId: string
     createdAt: Date
     updatedAt: Date
@@ -1029,6 +1083,8 @@ export interface DocumentFieldRefs {
   readonly keywords: Prisma.FieldRef<"Document", 'String'>
   readonly outline: Prisma.FieldRef<"Document", 'String'>
   readonly elements: Prisma.FieldRef<"Document", 'String'>
+  readonly filePath: Prisma.FieldRef<"Document", 'String'>
+  readonly mimeType: Prisma.FieldRef<"Document", 'String'>
   readonly documentId: Prisma.FieldRef<"Document", 'String'>
   readonly createdAt: Prisma.FieldRef<"Document", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Document", 'DateTime'>

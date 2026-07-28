@@ -40,4 +40,10 @@ export const documentService = {
     return request.post<any, { message: string; sources: string[]; sessionId: string }>(`/documents/${documentId}/ask`, { question, sessionId });
   },
 
+  /**
+   * 获取原文件下载/预览链接
+   */
+  getFileUrl(documentId: string): string {
+    return `/api/documents/${documentId}/file`;
+  }
 };

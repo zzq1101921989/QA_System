@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { ParserService } from '../services/parser.service';
 import { IngestionService } from '../services/ingestion.service';
+import { documentRepository } from '../repositories/document.repository';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -80,7 +81,13 @@ export class DocumentController {
       console.log(`[DocumentController] 文档已入库: ${chunkCount} 个向量块`);
 
       // Step 5: 生成Document记录
-      const uploadedDoc = await this.ingestionService.uploadDocument({...parseResult, documentId, chunkCount});
+      const uploadedDoc = await this.ingestionService.uploadDocument({
+        ...parseResult, 
+        documentId, 
+        chunkCount,
+        filePath: file.path,
+        mimeType: file.mimetype
+      });
 
       res.status(200).json({
         id: uploadedDoc.documentId,
@@ -118,4 +125,33 @@ export class DocumentController {
       next(error);
     }
   }
+
+  /**
+   * 获取原文件内容
+   */
+  public async getFile(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      const doc = await documentRepository.findByDocumentId(id);
+      
+      if (!doc || !doc.filePath || !fs.existsSync(doc.filePath)) {
+        res.status(404).json({ message: '文件不存在' });
+        return;
+      }
+
+      const stat = fs.statSync(doc.filePath);
+
+      res.writeHead(200, {
+        'Content-Type': doc.mimeType || 'application/octet-stream',
+        'Content-Length': stat.size,
+        'Content-Disposition': `inline; filename="${encodeURIComponent(doc.name || 'document')}"`
+      });
+
+      const readStream = fs.createReadStream(doc.filePath);
+      readStream.pipe(res);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
+

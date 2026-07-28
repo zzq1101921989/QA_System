@@ -71,10 +71,7 @@ export class ParserService {
       console.error('[ParserService Error]:', error.response?.data || error.message);
       throw new Error(`文档解析服务异常: ${error.response?.data?.detail || error.message}`);
     } finally {
-      // 解析完成后删除临时文件
-      if (fs.existsSync(file.path)) {
-        fs.unlinkSync(file.path);
-      }
+      // 预览功能需要原文件，因此此处不再删除上传的文件
     }
   }
 

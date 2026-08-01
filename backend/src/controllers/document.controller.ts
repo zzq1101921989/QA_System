@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { ParserService } from '../services/parser.service';
 import { IngestionService } from '../services/ingestion.service';
 import { documentRepository } from '../repositories/document.repository';
@@ -51,7 +50,6 @@ export class DocumentController {
       }
 
       const filename = decodeFilename(file);
-      console.log(`[DocumentController] 收到文件: ${filename}, 开始解析...`);
 
       // Step 0: 调用 Python 解析微服务，获取 Markdown
       const parseResult = await this.parserService.parseDocument({
@@ -63,31 +61,12 @@ export class DocumentController {
       writeDebugFile(filename, parseResult.markdown);
       writeDebugFile(filename + '_elements.json', JSON.stringify(parseResult.elements));
 
-      // Step 1: Load - 将 Markdown 加载为 LangChain Document
-      const documentId = Math.random().toString(36).substr(2, 9);
-      const doc = await this.ingestionService.loadDocument(parseResult, documentId);
-
-      // Step 2: 分块 (Chunking)
-      const textSplitter = RecursiveCharacterTextSplitter.fromLanguage(
-        'markdown',
-        { chunkSize: 1000, chunkOverlap: 200 }
+      // 核心处理逻辑：拆分、入库、生成数据库记录已下沉至 Service 层
+      const uploadedDoc = await this.ingestionService.processDocument(
+        parseResult,
+        file.path,
+        file.mimetype
       );
-      
-      const chunks = await textSplitter.splitDocuments([doc]);
-      console.log(`[DocumentController] 文档已分块: ${chunks.length} 个块`);
-
-      // Step 3&4: Embedding + Chroma 存储
-      const chunkCount = await this.ingestionService.embedAndStore(chunks, documentId);
-      console.log(`[DocumentController] 文档已入库: ${chunkCount} 个向量块`);
-
-      // Step 5: 生成Document记录
-      const uploadedDoc = await this.ingestionService.uploadDocument({
-        ...parseResult, 
-        documentId, 
-        chunkCount,
-        filePath: file.path,
-        mimeType: file.mimetype
-      });
 
       res.status(200).json({
         id: uploadedDoc.documentId,

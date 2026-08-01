@@ -1,4 +1,5 @@
 import { Document } from '@langchain/core/documents';
+import { MarkdownTextSplitter, RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import type { ParserResult } from './parser.service';
 import { vectorRepository } from '../repositories/vector.repository';
 import { documentRepository } from '../repositories/document.repository';
@@ -8,7 +9,7 @@ export class IngestionService {
   /**
    * Step 1: Load - 将解析后的 Markdown 字符串包装为 LangChain Document 对象
    */
-  public async loadDocument(parseResult: ParserResult, documentId: string): Promise<Document> {
+  public async packingDocument(parseResult: ParserResult, documentId: string): Promise<Document> {
     return new Document({
       pageContent: parseResult.markdown,
       metadata: {
@@ -17,6 +18,64 @@ export class IngestionService {
         ...parseResult.metadata,
       },
     });
+  }
+
+  /**
+   * 编排整个文档摄入流程：分阶段切分 -> 向量化入库 -> 生成关系型记录
+   */
+  public async processDocument(parseResult: ParserResult, filePath?: string, mimeType?: string) {
+    const documentId = Math.random().toString(36).substring(2, 11);
+    const doc = await this.packingDocument(parseResult, documentId);
+
+    // 第一阶段：基于 Markdown 标题结构的粗粒度语义切分 (章节)
+    const markdownSplitter = new MarkdownTextSplitter({
+      chunkSize: 4000,
+      chunkOverlap: 200,
+    });
+    const chapterChunks = await markdownSplitter.splitDocuments([doc]);
+
+    // 第二阶段：细粒度的字符切块，用于向量检索
+    const recursiveSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 200,
+    });
+
+    let totalChunkCount = 0;
+
+    // 顺序处理每个章节，保证物理顺序并避免并发写入带来的乱序风险
+    for (const chapterChunk of chapterChunks) {
+      const vectorChunks = await recursiveSplitter.splitDocuments([chapterChunk]);
+      
+      // 解析 Markdown 标题（从 chunk 自身提取最接近的标题结构）
+      // MarkdownTextSplitter 切分出来的 chunk，其头部通常保留了 `#` 格式的标题
+      const headingMatch = chapterChunk.pageContent.match(/^(#+)\s+(.+)$/m);
+      const chapterTitle = headingMatch ? headingMatch[2].trim() : "无标题章节";
+
+      // 将外层章节信息透传到最终的块元数据中，便于检索时感知上下文
+      const taggedChunks = vectorChunks.map(vc => {
+        vc.metadata = {
+          ...vc.metadata,
+          documentId: documentId, // 书（文档）的 ID
+          chapter_title: chapterTitle, // 父章节的标题名称
+          source_file: parseResult.metadata.source || "未知文件", // 原始文件名
+        };
+        return vc;
+      });
+
+      const storedCount = await this.embedAndStore(taggedChunks, documentId);
+      totalChunkCount += storedCount;
+    }
+
+    // 生成并保存关系型数据库的 Document 记录
+    const uploadedDoc = await this.uploadDocument({
+      ...parseResult,
+      documentId,
+      chunkCount: totalChunkCount,
+      filePath,
+      mimeType
+    });
+
+    return uploadedDoc;
   }
 
   /**
@@ -116,19 +175,13 @@ export class IngestionService {
   public async embedAndStore(chunks: Document[], documentId: string): Promise<number> {
     const batchSize = 6;
 
-    // 为每个 chunk 注入 documentId 元数据
-    const tagged = chunks.map((chunk) => {
-      const meta = { ...chunk.metadata, documentId };
-      return new Document({ pageContent: chunk.pageContent, metadata: meta });
-    });
-
     // 分批次入库
-    for (let i = 0; i < tagged.length; i += batchSize) {
-      const batch = tagged.slice(i, i + batchSize);
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batch = chunks.slice(i, i + batchSize);
       await vectorRepository.saveDocuments(batch);
     }
 
-    return tagged.length;
+    return chunks.length;
   }
 
   /**

@@ -24,18 +24,29 @@ async function main() {
     console.log(`📊 总分块数: ${count}`);
 
     if (count > 0) {
-      // 获取最近的 5 条记录
+      // 获取记录进行详细展示
       const response = await collection.get({
-        limit: 5,
-        include: ["metadatas", "documents"] as any
+        limit: 20, // 如果想看所有数据，可以把 limit 参数注释掉，或者改大一点
+        include: ["metadatas", "documents", "embeddings"] as any,
+        where: { documentId: "hhainqrpr" }
       });
 
-      console.log(`\n🔍 数据预览 (最新 ${response.ids.length} 条):`);
+      console.log(`\n🔍 详细 Chunk 预览 (展示 ${response.ids.length} 条):`);
       response.ids.forEach((id, i) => {
-        console.log(`\n[ID]: ${id}`);
-        console.log(`[来源]: ${response.metadatas?.[i]?.source || '未知'}`);
-        console.log(`[内容摘要]: ${response.documents?.[i]?.replace(/\n/g, ' ').substring(0, 100)}...`);
-        console.log(`--------------------------------`);
+        console.log(`\n👇 ================= Chunk [${i + 1}] ================= 👇`);
+        console.log(`[ID]: ${id}`);
+        console.log(`\n[Metadata (元数据)]:`);
+        console.log(JSON.stringify(response.metadatas?.[i], null, 2));
+        console.log(`\n[Document (文本内容)]:`);
+        console.log(response.documents?.[i]);
+        
+        const embedding = response.embeddings?.[i] as number[] | undefined;
+        if (embedding) {
+          console.log(`\n[Embedding (向量坐标 - ${embedding.length} 维)]:`);
+          console.log(`[${embedding.slice(0, 5).join(', ')}, ... ]`);
+        }
+
+        console.log(`👆 ================================================ 👆`);
       });
     } else {
       console.log(`\n💡 库内目前没有数据，请先上传文档。`);

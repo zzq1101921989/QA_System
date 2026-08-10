@@ -3,6 +3,7 @@ import prisma from '../core/prisma.client';
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  readDocumentIds?: string;
 }
 
 export class MemoryService {
@@ -36,18 +37,30 @@ export class MemoryService {
     return session.messages.map(msg => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
+      readDocumentIds: msg.readDocumentIds,
     }));
   }
 
   /**
    * 创建会话
    */
-  public async createSession(sessionId: string, title?: string | null): Promise<void> {
+  public async createSession(sessionId: string, title?: string | null, documentId?: string | null): Promise<void> {
     await prisma.session.create({
       data: {
         id: sessionId,
         title: title || undefined,
+        documentId: documentId || undefined,
       },
+    });
+  }
+
+  /**
+   * 更新会话关联的文档
+   */
+  public async updateSessionDocument(sessionId: string, documentId: string | null): Promise<void> {
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { documentId },
     });
   }
 
@@ -91,6 +104,7 @@ export class MemoryService {
         sessionId,
         role: message.role,
         content: message.content,
+        readDocumentIds: message.readDocumentIds || "",
       },
     });
   }
@@ -113,9 +127,28 @@ export class MemoryService {
    * 获取所有会话列表
    */
   public async getAllSessions() {
-    return prisma.session.findMany({
+    const sessions = await prisma.session.findMany({
       orderBy: { updatedAt: 'desc' },
+      include: {
+        messages: {
+          where: {
+            readDocumentIds: {
+              not: ""
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1
+        }
+      }
     });
+
+    return sessions.map(session => ({
+      id: session.id,
+      title: session.title,
+      createdAt: session.createdAt,
+      updatedAt: session.updatedAt,
+      documentId: session.documentId || session.messages[0]?.readDocumentIds || null
+    }));
   }
 }
 

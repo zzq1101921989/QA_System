@@ -6,6 +6,7 @@ interface BackendSession {
   title: string | null;
   createdAt: string;
   updatedAt: string;
+  documentId?: string | null;
 }
 
 interface BackendChatMessage {
@@ -14,7 +15,7 @@ interface BackendChatMessage {
 }
 
 function mapSession(s: BackendSession): SessionMessage {
-  return { sessionId: s.id, sessionName: s.title ?? '新会话' };
+  return { sessionId: s.id, sessionName: s.title ?? '新会话', documentId: s.documentId || undefined };
 }
 
 function mapMessage(msg: BackendChatMessage, index: number): Message {
@@ -22,9 +23,9 @@ function mapMessage(msg: BackendChatMessage, index: number): Message {
 }
 
 export const sessionService = {
-  async createSession(title?: string): Promise<SessionMessage> {
-    const data = await request.post<any, { sessionId: string }>('/sessions/create', { title });
-    return { sessionId: data.sessionId, sessionName: title ?? '新会话' };
+  async createSession(title?: string, documentId?: string | null): Promise<SessionMessage> {
+    const data = await request.post<any, { sessionId: string }>('/sessions/create', { title, documentId });
+    return { sessionId: data.sessionId, sessionName: title ?? '新会话', documentId: documentId || undefined };
   },
 
   async getSessions(): Promise<SessionMessage[]> {
@@ -43,5 +44,9 @@ export const sessionService = {
 
   async updateSessionName(sessionId: string, name: string): Promise<void> {
     await request.put(`/sessions/${sessionId}/name`, { name });
+  },
+
+  async updateSessionDocument(sessionId: string, documentId: string | null): Promise<void> {
+    await request.put(`/sessions/${sessionId}/document`, { documentId });
   },
 };

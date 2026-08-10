@@ -114,8 +114,8 @@ export class AskService {
     const answer = response.content as string;
 
     // Step 6: 持久化记忆
-    await memoryService.addMessage(activeSessionId, { role: 'user', content: question });
-    await memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer });
+    await memoryService.addMessage(activeSessionId, { role: 'user', content: question, readDocumentIds: documentId });
+    await memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer, readDocumentIds: documentId });
 
     // Step 7: 检索日志记录 (包含 HyDE 信息)
     this.saveRetrievalLog(documentId, question, relevantDocs, {

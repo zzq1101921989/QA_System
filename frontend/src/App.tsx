@@ -1,11 +1,11 @@
-import HomePage from './pages/Home';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
 
 /**
  * 应用入口组件
- * 后续可在此处引入 React Router 实现多页面路由
  */
 export default function App() {
   return (
-    <HomePage />
+    <RouterProvider router={router} />
   );
 }

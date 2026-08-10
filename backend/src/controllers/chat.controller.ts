@@ -26,10 +26,21 @@ export class ChatController {
     try {
       const sessionId = uuidv4();
 
-      const { title } = req.body;
+      const { title, documentId } = req.body;
 
-      await memoryService.createSession(sessionId, title);
+      await memoryService.createSession(sessionId, title, documentId);
       res.status(200).json({ sessionId });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async updateSessionDocument(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { sessionId } = req.params;
+      const { documentId } = req.body;
+      await memoryService.updateSessionDocument(sessionId as string, documentId || null);
+      res.status(200).json({ message: 'Session document updated successfully' });
     } catch (error) {
       next(error);
     }

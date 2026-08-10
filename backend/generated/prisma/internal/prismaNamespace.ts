@@ -667,6 +667,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const SessionScalarFieldEnum = {
   id: 'id',
   title: 'title',
+  documentId: 'documentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -679,6 +680,7 @@ export const MessageScalarFieldEnum = {
   sessionId: 'sessionId',
   role: 'role',
   content: 'content',
+  readDocumentIds: 'readDocumentIds',
   createdAt: 'createdAt'
 } as const
 

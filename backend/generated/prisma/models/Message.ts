@@ -29,6 +29,7 @@ export type MessageMinAggregateOutputType = {
   sessionId: string | null
   role: string | null
   content: string | null
+  readDocumentIds: string | null
   createdAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type MessageMaxAggregateOutputType = {
   sessionId: string | null
   role: string | null
   content: string | null
+  readDocumentIds: string | null
   createdAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type MessageCountAggregateOutputType = {
   sessionId: number
   role: number
   content: number
+  readDocumentIds: number
   createdAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type MessageMinAggregateInputType = {
   sessionId?: true
   role?: true
   content?: true
+  readDocumentIds?: true
   createdAt?: true
 }
 
@@ -63,6 +67,7 @@ export type MessageMaxAggregateInputType = {
   sessionId?: true
   role?: true
   content?: true
+  readDocumentIds?: true
   createdAt?: true
 }
 
@@ -71,6 +76,7 @@ export type MessageCountAggregateInputType = {
   sessionId?: true
   role?: true
   content?: true
+  readDocumentIds?: true
   createdAt?: true
   _all?: true
 }
@@ -152,6 +158,7 @@ export type MessageGroupByOutputType = {
   sessionId: string
   role: string
   content: string
+  readDocumentIds: string
   createdAt: Date
   _count: MessageCountAggregateOutputType | null
   _min: MessageMinAggregateOutputType | null
@@ -181,6 +188,7 @@ export type MessageWhereInput = {
   sessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
   content?: Prisma.StringFilter<"Message"> | string
+  readDocumentIds?: Prisma.StringFilter<"Message"> | string
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   session?: Prisma.XOR<Prisma.SessionScalarRelationFilter, Prisma.SessionWhereInput>
 }
@@ -190,6 +198,7 @@ export type MessageOrderByWithRelationInput = {
   sessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  readDocumentIds?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   session?: Prisma.SessionOrderByWithRelationInput
 }
@@ -202,6 +211,7 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   sessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
   content?: Prisma.StringFilter<"Message"> | string
+  readDocumentIds?: Prisma.StringFilter<"Message"> | string
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   session?: Prisma.XOR<Prisma.SessionScalarRelationFilter, Prisma.SessionWhereInput>
 }, "id">
@@ -211,6 +221,7 @@ export type MessageOrderByWithAggregationInput = {
   sessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  readDocumentIds?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MessageCountOrderByAggregateInput
   _max?: Prisma.MessageMaxOrderByAggregateInput
@@ -225,6 +236,7 @@ export type MessageScalarWhereWithAggregatesInput = {
   sessionId?: Prisma.StringWithAggregatesFilter<"Message"> | string
   role?: Prisma.StringWithAggregatesFilter<"Message"> | string
   content?: Prisma.StringWithAggregatesFilter<"Message"> | string
+  readDocumentIds?: Prisma.StringWithAggregatesFilter<"Message"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Message"> | Date | string
 }
 
@@ -232,6 +244,7 @@ export type MessageCreateInput = {
   id?: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
   session: Prisma.SessionCreateNestedOneWithoutMessagesInput
 }
@@ -241,6 +254,7 @@ export type MessageUncheckedCreateInput = {
   sessionId: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
 }
 
@@ -248,6 +262,7 @@ export type MessageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   session?: Prisma.SessionUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -257,6 +272,7 @@ export type MessageUncheckedUpdateInput = {
   sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -265,6 +281,7 @@ export type MessageCreateManyInput = {
   sessionId: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
 }
 
@@ -272,6 +289,7 @@ export type MessageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -280,6 +298,7 @@ export type MessageUncheckedUpdateManyInput = {
   sessionId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -298,6 +317,7 @@ export type MessageCountOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  readDocumentIds?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -306,6 +326,7 @@ export type MessageMaxOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  readDocumentIds?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -314,6 +335,7 @@ export type MessageMinOrderByAggregateInput = {
   sessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  readDocumentIds?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -363,6 +385,7 @@ export type MessageCreateWithoutSessionInput = {
   id?: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
 }
 
@@ -370,6 +393,7 @@ export type MessageUncheckedCreateWithoutSessionInput = {
   id?: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
 }
 
@@ -406,6 +430,7 @@ export type MessageScalarWhereInput = {
   sessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
   content?: Prisma.StringFilter<"Message"> | string
+  readDocumentIds?: Prisma.StringFilter<"Message"> | string
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
 }
 
@@ -413,6 +438,7 @@ export type MessageCreateManySessionInput = {
   id?: string
   role: string
   content: string
+  readDocumentIds?: string
   createdAt?: Date | string
 }
 
@@ -420,6 +446,7 @@ export type MessageUpdateWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -427,6 +454,7 @@ export type MessageUncheckedUpdateWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -434,6 +462,7 @@ export type MessageUncheckedUpdateManyWithoutSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  readDocumentIds?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -444,6 +473,7 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   sessionId?: boolean
   role?: boolean
   content?: boolean
+  readDocumentIds?: boolean
   createdAt?: boolean
   session?: boolean | Prisma.SessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -453,6 +483,7 @@ export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   sessionId?: boolean
   role?: boolean
   content?: boolean
+  readDocumentIds?: boolean
   createdAt?: boolean
   session?: boolean | Prisma.SessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -462,6 +493,7 @@ export type MessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   sessionId?: boolean
   role?: boolean
   content?: boolean
+  readDocumentIds?: boolean
   createdAt?: boolean
   session?: boolean | Prisma.SessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -471,10 +503,11 @@ export type MessageSelectScalar = {
   sessionId?: boolean
   role?: boolean
   content?: boolean
+  readDocumentIds?: boolean
   createdAt?: boolean
 }
 
-export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sessionId" | "role" | "content" | "createdAt", ExtArgs["result"]["message"]>
+export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sessionId" | "role" | "content" | "readDocumentIds" | "createdAt", ExtArgs["result"]["message"]>
 export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   session?: boolean | Prisma.SessionDefaultArgs<ExtArgs>
 }
@@ -495,6 +528,7 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     sessionId: string
     role: string
     content: string
+    readDocumentIds: string
     createdAt: Date
   }, ExtArgs["result"]["message"]>
   composites: {}
@@ -924,6 +958,7 @@ export interface MessageFieldRefs {
   readonly sessionId: Prisma.FieldRef<"Message", 'String'>
   readonly role: Prisma.FieldRef<"Message", 'String'>
   readonly content: Prisma.FieldRef<"Message", 'String'>
+  readonly readDocumentIds: Prisma.FieldRef<"Message", 'String'>
   readonly createdAt: Prisma.FieldRef<"Message", 'DateTime'>
 }
     

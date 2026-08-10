@@ -30,5 +30,6 @@ router.get('/sessions/:sessionId/history', (req, res, next) => chatController.ge
 router.post('/sessions/create', (req, res, next) => chatController.createSession(req, res, next));
 router.delete('/sessions/:sessionId', (req, res, next) => chatController.deleteSession(req, res, next));
 router.put('/sessions/:sessionId/name', (req, res, next) => chatController.updateSessionName(req, res, next));
+router.put('/sessions/:sessionId/document', (req, res, next) => chatController.updateSessionDocument(req, res, next));
 
 export default router;

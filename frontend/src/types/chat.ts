@@ -16,9 +16,11 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   sources?: string[];
+  readDocumentIds?: string;
 }
 
 export interface SessionMessage {
   sessionId: string;
   sessionName: string;
+  documentId?: string;
 }

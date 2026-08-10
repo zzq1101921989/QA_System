@@ -6,25 +6,26 @@
 
 ## 当前状态总览
 
-### ✅ 已完成（12 项）
+### ✅ 已完成（16 项）
 
 | # | 任务 | 涉及文件 |
 |---|------|----------|
-| 1 | PDF/Word/Excel → Markdown 解析微服务 | `python-document2markdown/app/services/pdf_parser.py` |
-| 2 | LangChain 语义分块（RecursiveCharacterTextSplitter） | `backend/src/services/ingestion.service.ts` |
-| 3 | 分批向量化入库（DashScope text-embedding-v4, batchSize=6） | `backend/src/services/ingestion.service.ts` |
-| 4 | Chroma 单例模式修复连接时序问题 | `backend/src/core/chroma.client.ts` |
-| 5 | 文档列表同步（从向量库元数据聚合） | `backend/src/services/ingestion.service.ts` |
-| 6 | 基础 RAG 问答（向量检索 → Context → LLM） | `backend/src/services/ask.service.ts` |
-| 7 | 检索日志保存到 `backend/logs/` | `backend/src/services/ask.service.ts` |
-| 8 | 对话记忆（后端 MemoryService + 前端 localStorage 持久化 + 会话切换） | `memory.service.ts` / `useSession.ts` / `Sidebar.tsx` |
-| 9 | 前端 AI 回答加载等待状态 | `useChat.ts` → `ChatArea.tsx` |
-| 10 | 侧边栏重构 + 上传弹窗左右分栏 | `Sidebar.tsx` / `UploadModal.tsx` |
-| 11 | 查询重写（Query Rewriting） | `backend/src/services/ask.service.ts` |
-| 12 | 后端 VectorRepository 重构 | `backend/src/repositories/vector.repository.ts` |
-| 13 | HyDE 检索（Hypothetical Document Embedding） | `backend/src/services/ask.service.ts` |
-| 14 | 文档主动分析 (概要/关键词/大纲) | `ingestion.service.ts` / `OutlineModal.tsx` / `Sidebar.tsx` |
-| 15 | 原文高保真预览与大纲分栏 | `DocumentViewer.tsx` / `OutlineModal.tsx` / `document.controller.ts` |
+| 1 | PDF/Word/Excel → Markdown 解析微服务 | [pdf_parser.py](file:///d:/code/QA_System/python-document2markdown/app/services/pdf_parser.py) |
+| 2 | LangChain 语义分块（RecursiveCharacterTextSplitter） | [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) |
+| 3 | 分批向量化入库（DashScope text-embedding-v4, batchSize=6） | [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) |
+| 4 | Chroma 单例模式修复连接时序问题 | [chroma.client.ts](file:///d:/code/QA_System/backend/src/core/chroma.client.ts) |
+| 5 | 文档列表同步（从向量库元数据聚合） | [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) |
+| 6 | 基础 RAG 问答（向量检索 → Context → LLM） | [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) |
+| 7 | 检索日志保存到 `backend/logs/` | [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) |
+| 8 | 对话记忆（后端 MemoryService + 前端 Session 持久化） | [memory.service.ts](file:///d:/code/QA_System/backend/src/services/memory.service.ts) / [useSession.ts](file:///d:/code/QA_System/frontend/src/hooks/useSession.ts) |
+| 9 | 前端 AI 回答加载等待状态 | [ChatArea.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/ChatArea.tsx) |
+| 10 | 侧边栏重构 + 上传弹窗左右分栏 | [Sidebar.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/Sidebar.tsx) / [UploadModal.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/UploadModal.tsx) |
+| 11 | 查询重写（Query Rewriting） | [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) |
+| 12 | 后端 VectorRepository 重构 | [vector.repository.ts](file:///d:/code/QA_System/backend/src/repositories/vector.repository.ts) |
+| 13 | HyDE 检索（Hypothetical Document Embedding） | [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) |
+| 14 | 文档主动分析 (概要/关键词/大纲) | [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) / [OutlineModal.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/OutlineModal.tsx) |
+| 15 | 原文高保真预览与大纲分栏 | [DocumentViewer.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/DocumentViewer.tsx) / [OutlineModal.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/OutlineModal.tsx) |
+| 16 | 桌面端 UI 汉化与本地化体验优化 | [DesktopLayout.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/desktop/DesktopLayout.tsx) |
 
 ### 🔧 现在所处的阶段
 
@@ -40,6 +41,7 @@ Phase 1 (检索质量提升) ──── 当前正在做
 Phase 2 (主动学习 & 任务机制) ──── 正在进行
     ├── 文档主动分析 (概要/关键词/大纲) ✅ 已完成
     ├── 原文高保真预览与大纲分栏 ✅ 已完成
+    ├── 桌面端 UI 汉化 ✅ 已完成
     ├── 学习引导 (推荐提问/引导卡片) ⬅️ 下一个任务
     └── 刷题打卡 (任务驱动)
 
@@ -64,8 +66,8 @@ Phase 3 (产品化打磨) ──── 待开始
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ask.service.ts` | 修改 | 在向量检索之前，增加查询重写步骤 |
-| `backend/src/services/memory.service.ts` | 不改 | 复用已有的历史记录方法 |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 修改 | 在向量检索之前，增加查询重写步骤 |
+| [memory.service.ts](file:///d:/code/QA_System/backend/src/services/memory.service.ts) | 不改 | 复用已有的历史记录方法 |
 
 #### 核心逻辑
 
@@ -103,7 +105,7 @@ ask(documentId, question, sessionId)
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ask.service.ts` | 修改 | 在向量检索前插入 HyDE 生成步骤，改用假答案向量检索 |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 修改 | 在向量检索前插入 HyDE 生成步骤，改用假答案向量检索 |
 
 #### 核心逻辑
 
@@ -149,9 +151,9 @@ HyDE 生成 Prompt: "请根据问题生成一段详细的文档片段（假设�
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ask.service.ts` | 修改 | 新增关键词检索逻辑，与向量检索结果合并 |
-| `backend/package.json` | 修改 | 新增关键词检索依赖 |
-| `backend/src/core/chroma.client.ts` | 不改 | Chroma 本身支持文本过滤 |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 修改 | 新增关键词检索逻辑，与向量检索结果合并 |
+| [package.json](file:///d:/code/QA_System/backend/package.json) | 修改 | 新增关键词检索依赖 |
+| [chroma.client.ts](file:///d:/code/QA_System/backend/src/core/chroma.client.ts) | 不改 | Chroma 本身支持文本过滤 |
 
 #### 核心逻辑
 
@@ -217,11 +219,11 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/ingestion.service.ts` | 修改 | 入库成功后调用 LLM 生成摘要、关键词、大纲（支持原子化拆分） |
-| `backend/src/repositories/document.repository.ts` | 修改 | 支持存储和读取文档级别的概要、关键词、大纲元数据 |
-| `frontend/src/types/chat.ts` | 修改 | Document 接口增加 summary、keywords、outline 字段 |
-| `frontend/src/pages/Home/common/Sidebar.tsx` | 修改 | 展示关键词标签，增加大纲查看按钮 |
-| `frontend/src/pages/Home/common/OutlineModal.tsx` | **新增** | 以层级树形式展示大纲内容，并显示文档摘要 |
+| [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) | 修改 | 入库成功后调用 LLM 生成摘要、关键词、大纲（支持原子化拆分） |
+| [document.repository.ts](file:///d:/code/QA_System/backend/src/repositories/document.repository.ts) | 修改 | 支持存储和读取文档级别的概要、关键词、大纲元数据 |
+| [chat.ts](file:///d:/code/QA_System/frontend/src/types/chat.ts) | 修改 | Document 接口增加 summary、keywords、outline 字段 |
+| [Sidebar.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/Sidebar.tsx) | 修改 | 展示关键词标签，增加大纲查看按钮 |
+| [OutlineModal.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/OutlineModal.tsx) | **新增** | 以层级树形式展示大纲内容，并显示文档摘要 |
 
 #### 核心逻辑
 
@@ -250,7 +252,25 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ---
 
-### 任务 2.2 学习引导与推荐问题 ⬅️
+### 任务 2.2 桌面端 UI 汉化 ✅
+
+**目标**：提升桌面端聊天布局的本地化体验，将主要 UI 标签和状态显示从英文翻译为中文。
+
+#### 改动文件
+
+| 文件 | 改动类型 | 改动说明 |
+|------|----------|----------|
+| [DesktopLayout.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/desktop/DesktopLayout.tsx) | 修改 | 翻译 "Analysis Mode"、"Active_Asset" 等标签，同步汉化状态显示逻辑 |
+
+#### 验收标准
+
+- [x] 桌面端侧边栏标题显示为“分析模式”
+- [x] 活跃文档标识显示为“当前文档”
+- [x] 检索模式显示正确（如“目标文档”、“全局检索”）
+
+---
+
+### 任务 2.3 学习引导与推荐问题 ⬅️
 
 **目标**：基于文档概要，自动生成“你可能想问”的问题列表，降低用户学习门槛。
 
@@ -261,7 +281,7 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ---
 
-### 任务 2.3 刷题打卡 (Quiz & Streak)
+### 任务 2.4 刷题打卡 (Quiz & Streak)
 
 **目标**：在用户完成文档概览和初步学习后，通过任务机制驱动持续学习。
 
@@ -269,11 +289,11 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `backend/src/services/quiz.service.ts` | **新增** | 题目生成、答案校验服务 |
-| `backend/src/controllers/quiz.controller.ts` | **新增** | 出题、答题、打卡统计接口 |
-| `backend/src/routes/api.ts` | 修改 | 注册 `/quiz` 路由 |
-| `frontend/src/services/quizService.ts` | **新增** | 前端 API 封装 |
-| `frontend/src/pages/Quiz/index.tsx` | **新增** | 刷题页面 |
+| [quiz.service.ts](file:///d:/code/QA_System/backend/src/services/quiz.service.ts) | **新增** | 题目生成、答案校验服务 |
+| [quiz.controller.ts](file:///d:/code/QA_System/backend/src/controllers/quiz.controller.ts) | **新增** | 出题、答题、打卡统计接口 |
+| [api.ts](file:///d:/code/QA_System/backend/src/routes/api.ts) | 修改 | 注册 `/quiz` 路由 |
+| [quizService.ts](file:///d:/code/QA_System/frontend/src/services/quizService.ts) | **新增** | 前端 API 封装 |
+| [index.tsx](file:///d:/code/QA_System/frontend/src/pages/Quiz/index.tsx) | **新增** | 刷题页面 |
 
 #### 核心功能拆解
 
@@ -292,7 +312,7 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ---
 
-### 任务 2.4 可视化溯源
+### 任务 2.5 可视化溯源
 
 **目标**：AI 回答中引用来源时，鼠标悬浮高亮展示原文片段，点击可跳转到文档位置。
 
@@ -300,8 +320,8 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 | 文件 | 改动类型 | 改动说明 |
 |------|----------|----------|
-| `frontend/src/pages/Home/common/ChatArea.tsx` | 修改 | 来源引用改为悬浮卡片展示 |
-| `backend/src/services/ask.service.ts` | 修改 | 返回结构化来源数据（含原文片段） |
+| [ChatArea.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/ChatArea.tsx) | 修改 | 来源引用改为悬浮卡片展示 |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 修改 | 返回结构化来源数据（含原文片段） |
 
 #### 返回数据格式变化
 
@@ -359,11 +379,11 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 | 文件 | 改动类型 |
 |------|----------|
-| `backend/src/controllers/chat.controller.ts` | 改为 SSE 响应 |
-| `backend/src/services/ask.service.ts` | 新增 streamAsk 方法 |
-| `frontend/src/services/documentService.ts` | 新增流式请求方法 |
-| `frontend/src/hooks/useMessages.ts` | 改为逐字追加消息内容 |
-| `frontend/src/pages/Home/common/ChatArea.tsx` | 显示流式游标动画 |
+| [chat.controller.ts](file:///d:/code/QA_System/backend/src/controllers/chat.controller.ts) | 改为 SSE 响应 |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 新增 streamAsk 方法 |
+| [documentService.ts](file:///d:/code/QA_System/frontend/src/services/documentService.ts) | 新增流式请求方法 |
+| [useMessages.ts](file:///d:/code/QA_System/frontend/src/hooks/useMessages.ts) | 改为逐字追加消息内容 |
+| [ChatArea.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/ChatArea.tsx) | 显示流式游标动画 |
 
 #### 技术方案
 
@@ -390,8 +410,8 @@ res.end();
 
 | 文件 | 改动类型 |
 |------|----------|
-| `python-document2markdown/app/services/pdf_parser.py` | 增加 OCR 触底逻辑 |
-| `python-document2markdown/requirements.txt` | 新增依赖 |
+| [pdf_parser.py](file:///d:/code/QA_System/python-document2markdown/app/services/pdf_parser.py) | 增加 OCR 触底逻辑 |
+| [requirements.txt](file:///d:/code/QA_System/python-document2markdown/requirements.txt) | 新增依赖 |
 
 ---
 
@@ -405,10 +425,10 @@ res.end();
 
 | 文件 | 改动类型 |
 |------|----------|
-| `backend/src/services/ingestion.service.ts` | 元数据加 namespace |
-| `backend/src/services/ask.service.ts` | filter 加 namespace |
-| `frontend/src/hooks/useDocuments.ts` | 上传/列表接口带 namespace |
-| `frontend/src/pages/Home/common/Sidebar.tsx` | 增加空间切换 UI |
+| [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) | 元数据加 namespace |
+| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | filter 加 namespace |
+| [useDocuments.ts](file:///d:/code/QA_System/frontend/src/hooks/useDocuments.ts) | 上传/列表接口带 namespace |
+| [Sidebar.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/Sidebar.tsx) | 增加空间切换 UI |
 
 ---
 

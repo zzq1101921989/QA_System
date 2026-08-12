@@ -146,13 +146,4 @@ export class ParserService {
       // 预览功能需要原文件，因此此处不再删除上传的文件
     }
   }
-
-  /**
-   * 生成标签
-   * @param markdown 
-   * @returns 
-   */
-  public async generateLabel(markdown: string): Promise<string> {
-    return markdown;
-  }
 }

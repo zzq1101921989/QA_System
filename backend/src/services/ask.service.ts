@@ -5,6 +5,11 @@ import { llm } from '../core/llm.client';
 import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { ChatMessage, memoryService } from './memory.service';
 
+export const QueryIntent = {
+  DOCUMENT_QUERY: 'DOCUMENT_QUERY', // 文档查询意图
+  GENERAL: 'GENERAL', // 闲聊、通用知识、历史追问
+}
+
 export class AskService {
 
   /**
@@ -17,7 +22,7 @@ export class AskService {
     请根据以下上下文和用户问题，生成一个更符合用户需求的问题：
 
     ## 上下文历史：
-    ${history.map(msg => msg.content).join('\n')}
+    ${history.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
 
     ## 用户问题：
     ${question}
@@ -28,12 +33,11 @@ export class AskService {
     改写后的问题:
     `
     const response = await llm.invoke(rewritePrompt);
-    return response.content as string;
+    return (response.content as string).trim();
   }
 
   /**
    * 生成假设性回答 (HyDE - Hypothetical Document Embeddings)
-   * 该技术通过生成一个“伪答案”来检索，往往比直接用“问题”检索效果更好
    */
   public async generateHypotheticalAnswer(question: string): Promise<string> {
     const hydePrompt = `
@@ -52,39 +56,63 @@ export class AskService {
     假设性回答:
     `
     const response = await llm.invoke(hydePrompt);
-    return response.content as string;
+    return (response.content as string).trim();
   }
 
   /**
-   * 处理 RAG 检索问答 (集成 HyDE)
+   * 意图路由判断
    */
-  public async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId?: string }> {
+  public async routeQuery(question: string, history: ChatMessage[]): Promise<string> {
+    const routerPrompt = `
+      ## 角色：
+      你是一个意图识别的专家，负责判断用户的问题是否需要从参考文档中检索具体信息。
+
+      ## 意图分类：
+      1. ${QueryIntent.DOCUMENT_QUERY}: 用户在询问有关文档的具体内容、事实、细节、总结或特定数据。
+      2. ${QueryIntent.GENERAL}: 包括招呼语（你好）、关于对话历史的询问（你刚才说了什么）、通用的常识/编程问题、或者闲聊。
+
+      ## 规则：
+      1. 只返回分类名称（${QueryIntent.DOCUMENT_QUERY} 或 ${QueryIntent.GENERAL}），不要任何解释。
+      2. 如果问题涉及到文档库中可能存在的知识，优先选择 ${QueryIntent.DOCUMENT_QUERY}。
+
+      ## 用户问题：
+      ${question}
+
+      分类结果：`
+
+    const response = await llm.invoke(routerPrompt);
+    const intent = (response.content as string).trim();
+
+    return intent.includes(QueryIntent.DOCUMENT_QUERY)
+      ? QueryIntent.DOCUMENT_QUERY
+      : QueryIntent.GENERAL;
+  }
+
+  /**
+   * 处理 RAG 检索问答
+   */
+  private async handleRAGFlow(documentId: string, question: string, history: ChatMessage[]): Promise<{ message: string; sources: string[]; relevantDocs: any[]; rewrittenQuestion: string }> {
     const K = 5;
-    const activeSessionId = sessionId || `session_${Date.now()}`;
-    const history = await memoryService.getHistory(activeSessionId);
 
     // Step 1: 查询重写 (如果有历史)
     const rewrittenQuestion = history.length > 0 ? await this.rewriteQuestion(question, history) : question;
 
-    // Step 2: HyDE 生成假设性回答 (如果有历史)
-    // 否则直接使用重写后的问题
-    // 这样可以避免在没有历史上下文时，生成的假设性回答与问题不相关
-    // const hypotheticalAnswer = history.length > 0 ? await this.generateHypotheticalAnswer(rewrittenQuestion) : rewrittenQuestion;
-
-    // Step 3: 向量检索 (使用 HyDE 假答案检索)
+    // Step 2: 向量检索
     const relevantDocs = await vectorRepository.searchSimilarDocuments(rewrittenQuestion, {
       k: K,
       filter: { documentId }
     });
-
+    
     if (relevantDocs.length === 0) {
       return {
         message: '知识库中未找到与问题相关的文档内容，请尝试其他问题。',
         sources: [],
+        relevantDocs: [],
+        rewrittenQuestion
       };
     }
-
-    // Step 4: 构建 Context
+    
+    // Step 3: 构建 Context
     const context = relevantDocs
       .map((doc, i) => `【片段 ${i + 1}】\n${doc.pageContent}`)
       .join('\n\n---\n');
@@ -94,13 +122,39 @@ export class AskService {
       if (doc.metadata?.source) sourceSet.add(String(doc.metadata.source));
     });
 
-    // Step 5: 构建 Prompt 并调用 LLM 回答
+    // Step 4: 构建 Prompt 并调用 LLM 回答
     const messages: BaseMessage[] = [
       new SystemMessage(
         '你是一个严谨的知识库问答助手。请严格按照以下文档内容回答用户的问题。\n\n' +
         '规则：\n1. 只有在文档内容能直接支持答案时才给出完整的文档内容\n2. 文档内容不足时请说明"未找到相关信息"\n3. 不要编造\n4. 引用片段编号\n\n' +
         `以下是相关内容：\n\n${context}`
       )
+    ];
+
+    // 注入对话历史
+    history.forEach(msg => {
+      if (msg.role === 'user') messages.push(new HumanMessage(msg.content));
+      else messages.push(new AIMessage(msg.content));
+    });
+
+    messages.push(new HumanMessage(question));
+
+    const response = await llm.invoke(messages);
+    
+    return {
+      message: response.content as string,
+      sources: Array.from(sourceSet),
+      relevantDocs,
+      rewrittenQuestion
+    };
+  }
+
+  /**
+   * 处理通用问答/闲聊逻辑
+   */
+  private async handleGeneralFlow(question: string, history: ChatMessage[]): Promise<{ message: string; sources: string[] }> {
+    const messages: BaseMessage[] = [
+      new SystemMessage('你是一个友好且专业的 AI 助手。请根据上下文回答用户的问题，如果是闲聊则轻松回应，如果是通用知识问题则专业回答。')
     ];
 
     history.forEach(msg => {
@@ -111,26 +165,56 @@ export class AskService {
     messages.push(new HumanMessage(question));
 
     const response = await llm.invoke(messages);
-    const answer = response.content as string;
 
-    // Step 6: 持久化记忆
+    return {
+      message: response.content as string,
+      sources: []
+    };
+  }
+
+  /**
+   * 处理 RAG 检索问答 (集成意图路由)
+   */
+  public async ask(documentId: string, question: string, sessionId?: string): Promise<{ message: string; sources: string[]; sessionId?: string }> {
+    const activeSessionId = sessionId || `session_${Date.now()}`;
+    const history = await memoryService.getHistory(activeSessionId);
+
+    // 1. 意图路由
+    const intent = await this.routeQuery(question, history);
+
+    console.log('意图路由:', intent);
+    
+    let result: { message: string; sources: string[]; relevantDocs?: any[]; rewrittenQuestion?: string };
+
+    if (intent === QueryIntent.DOCUMENT_QUERY) {
+      // 执行 RAG 流程
+      result = await this.handleRAGFlow(documentId, question, history);
+      
+      // 记录检索日志
+      if (result.relevantDocs && result.relevantDocs.length > 0) {
+        this.saveRetrievalLog(documentId, question, result.relevantDocs, {
+          rewrittenQuestion: result.rewrittenQuestion || question,
+          hypotheticalAnswer: result.rewrittenQuestion || question // 暂时用重写后的问题代替
+        });
+      }
+    } else {
+      // 执行通用问答流程
+      result = await this.handleGeneralFlow(question, history);
+    }
+
+    // 2. 持久化用户提出的问题和助手的回答
     await memoryService.addMessage(activeSessionId, { role: 'user', content: question, readDocumentIds: documentId });
-    await memoryService.addMessage(activeSessionId, { role: 'assistant', content: answer, readDocumentIds: documentId });
+    await memoryService.addMessage(activeSessionId, { role: 'assistant', content: result.message, readDocumentIds: documentId });
 
-    // Step 7: 检索日志记录 (包含 HyDE 信息)
-    this.saveRetrievalLog(documentId, question, relevantDocs, {
-      rewrittenQuestion,
-      hypotheticalAnswer: rewrittenQuestion
-    });
-
+    // 3. 更新会话标题（如果是第一条消息）
     const sessionName = await memoryService.getSessionName(activeSessionId);
     if (!sessionName) {
       await memoryService.updateSessionName(activeSessionId, question);
     }
 
     return {
-      message: answer,
-      sources: Array.from(sourceSet),
+      message: result.message,
+      sources: result.sources,
       sessionId: activeSessionId
     };
   }

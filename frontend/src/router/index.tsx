@@ -10,15 +10,32 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to="/chat" replace />,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: '/dashboard',
+        element: <DocumentsPage defaultTab="dashboard" />,
+      },
+      {
+        path: '/shelf',
+        element: <DocumentsPage defaultTab="shelf" />,
+      },
+      {
+        path: '/settings',
+        element: <DocumentsPage defaultTab="settings" />,
+      },
+      {
+        path: '/study/:docId?',
+        element: <ChatPage />,
+      },
+      // 兼容旧路由
+      {
+        path: '/bookshelf',
+        element: <Navigate to="/shelf" replace />,
       },
       {
         path: '/chat',
-        element: <ChatPage />,
-      },
-      {
-        path: '/documents',
-        element: <DocumentsPage />,
+        element: <Navigate to="/dashboard" replace />,
       },
     ],
   },

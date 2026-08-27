@@ -28,9 +28,10 @@ export const sessionService = {
     return { sessionId: data.sessionId, sessionName: title ?? '新会话', documentId: documentId || undefined };
   },
 
-  async getSessions(): Promise<SessionMessage[]> {
-    const data = await request.get<any, BackendSession[]>('/sessions');
-    return data.map(mapSession);
+  async getSessions(documentId?: string | null): Promise<SessionMessage[]> {
+    const url = documentId ? `/sessions?documentId=${documentId}` : '/sessions';
+    const data = await request.get<any, SessionMessage[]>(url);
+    return data;
   },
 
   async getSessionHistory(sessionId: string): Promise<Message[]> {

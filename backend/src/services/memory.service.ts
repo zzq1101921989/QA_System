@@ -124,10 +124,11 @@ export class MemoryService {
   }
 
   /**
-   * 获取所有会话列表
+   * 获取会话列表，支持按文档 ID 过滤
    */
-  public async getAllSessions() {
+  public async getSessions(documentId?: string) {
     const sessions = await prisma.session.findMany({
+      where: documentId ? { documentId } : undefined,
       orderBy: { updatedAt: 'desc' },
       include: {
         messages: {
@@ -143,12 +144,19 @@ export class MemoryService {
     });
 
     return sessions.map(session => ({
-      id: session.id,
-      title: session.title,
+      sessionId: session.id,
+      sessionName: session.title || '新会话',
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
       documentId: session.documentId || session.messages[0]?.readDocumentIds || null
     }));
+  }
+
+  /**
+   * 获取所有会话列表 (兼容旧调用)
+   */
+  public async getAllSessions() {
+    return this.getSessions();
   }
 }
 

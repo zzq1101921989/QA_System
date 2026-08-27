@@ -11,11 +11,12 @@ export class ChatController {
   }
   
   /**
-   * 获取所有会话列表
+   * 获取会话列表
    */
   public async getSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const sessions = await memoryService.getAllSessions();
+      const { documentId } = req.query;
+      const sessions = await memoryService.getSessions(documentId as string);
       res.status(200).json(sessions);
     } catch (error) {
       next(error);

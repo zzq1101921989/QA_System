@@ -7,7 +7,7 @@ interface UseMessagesProps {
   currentSessionId: string | null;
   sessionMessages: SessionMessage[];
   getSessionMessages: (sessionId: string) => Promise<Message[]>;
-  createNewSession: () => Promise<string>;
+  createNewSession: (documentId?: string | null) => Promise<string>;
   updateSessionName: (sessionId: string, name: string) => void;
 }
 
@@ -45,7 +45,7 @@ export function useMessages({
     // 确保有会话 ID
     let activeSessionId = currentSessionId;
     if (!activeSessionId) {
-      activeSessionId = await createNewSession();
+      activeSessionId = await createNewSession(selectedDocId);
     } else if (messages.length === 0) {
       const currentSession = sessionMessages.find(s => s.sessionId === activeSessionId);
       if (!currentSession?.sessionName) {

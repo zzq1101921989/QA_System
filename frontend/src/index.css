@@ -12,84 +12,28 @@
   --color-lab-bubble-ai-text: var(--clab-bubble-ai-text);
   --color-lab-border: var(--clab-border);
   --color-lab-text: var(--clab-text);
+  --radius-xl: var(--clab-radius);
   --font-mono: 'JetBrains Mono', monospace;
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-display: 'Space Grotesk', sans-serif;
+  --font-rounded: 'Quicksand', sans-serif;
 }
 
-/* ── Theme: Dark Lab（暗夜实验室 - 默认） ── */
-:root,
-[data-theme="dark"] {
-  --clab-bg: #0a0a0c;
-  --clab-panel: #121216;
-  --clab-accent: #10b981;
-  --clab-accent2: #059669;
-  --clab-warning: #f59e0b;
-  --clab-active: var(--clab-accent);
-  --clab-bubble-ai: var(--clab-panel);
-  --clab-bubble-ai-text: var(--clab-text);
-  --clab-border: #1f1f23;
-  --clab-text: #e4e4e7;
-  --clab-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.1), 0 2px 10px -1px rgba(0, 0, 0, 0.05);
-}
-
-/* ── Theme: 元祖高达（RX-78-2 Gundam） ── */
-[data-theme="gundam"] {
-  --clab-bg: #e5e7eb; /* 装甲灰 */
-  --clab-panel: #ffffff; /* 纯白装甲 */
-  --clab-accent: #1b4f9c; /* 高达蓝：胸甲 */
-  --clab-accent2: #e62e2d; /* 高达红：盾牌/足部 */
-  --clab-warning: #fbc02d; /* 高达黄：天线/排气口 */
-  --clab-active: var(--clab-accent);
-  --clab-bubble-ai: var(--clab-accent); /* AI 气泡背景改为高达蓝 */
-  --clab-bubble-ai-text: #ffffff;
-  --clab-border: #cbd5e1;
-  --clab-text: #1a1a2e;
-  --clab-shadow: 0 10px 30px -5px rgba(27, 79, 156, 0.08), 0 4px 12px -2px rgba(27, 79, 156, 0.04);
-}
-
-/* ── Theme: 哆啦A梦（Doraemon） ── */
-[data-theme="doraemon"] {
-  --clab-bg: #f0f4f8;
+/* ── Theme: 治愈温和（Study Warm - 唯一主题） ── */
+:root {
+  --clab-bg: #F5F1E9; /* 更深一点的暖纸色 */
   --clab-panel: #ffffff;
-  --clab-accent: #1565c0;
-  --clab-accent2: #e65100;
-  --clab-warning: #ffb300;
+  --clab-accent: #7FB3B7; /* 更深一点的薄荷绿 */
+  --clab-accent2: #E08E58; /* 更深一点的暖阳橙 */
+  --clab-warning: #D18385; /* 更深一点的腮红粉 */
   --clab-active: var(--clab-accent);
-  --clab-bubble-ai: var(--clab-panel);
-  --clab-bubble-ai-text: var(--clab-text);
-  --clab-border: #d0d8e0;
-  --clab-text: #1a1a2e;
-}
-
-/* ── Theme: 海贼王路飞（One Piece - Luffy） ── */
-[data-theme="luffy"] {
-  --clab-bg: #fef6e8;
-  --clab-panel: #ffffff;
-  --clab-accent: #d32f2f;
-  --clab-accent2: #fbc02d;
-  --clab-warning: #fbc02d;
-  --clab-active: var(--clab-accent);
-  --clab-bubble-ai: var(--clab-panel);
-  --clab-bubble-ai-text: var(--clab-text);
-  --clab-border: #e8dcc8;
-  --clab-text: #1a1a2e;
-}
-
-/* ── Theme: 火影忍者佐助（Naruto - Sasuke） ── */
-[data-theme="sasuke"] {
-  --clab-bg: #0e0a16;
-  --clab-panel: #1a1428;
-  --clab-accent: #7c3aed;
-  --clab-accent2: #2563eb;
-  --clab-warning: #fbbf24;
-  --clab-active: var(--clab-accent);
-  --clab-bubble-ai: var(--clab-panel);
-  --clab-bubble-ai-text: var(--clab-text);
-  --clab-border: #2a2040;
-  --clab-text: #1a1a2e;
-  --clab-shadow: 0 8px 32px -8px rgba(27, 79, 156, 0.12), 0 4px 12px -4px rgba(27, 79, 156, 0.08);
-  --clab-glass: rgba(255, 255, 255, 0.7);
+  --clab-bubble-ai: #EBEFF5;
+  --clab-bubble-ai-text: #1D1E2C;
+  --clab-border: #D8D0C0;
+  --clab-text: #1D1E2C;
+  --clab-shadow: 0 12px 40px -8px rgba(127, 179, 183, 0.15), 0 8px 16px -4px rgba(127, 179, 183, 0.1);
+  --clab-radius: 24px;
+  --clab-grid: rgba(127, 179, 183, 0.08);
 }
 
 @layer base {
@@ -107,90 +51,41 @@
   }
 
   body {
-    @apply bg-lab-bg text-lab-text antialiased;
+    @apply bg-lab-bg text-lab-text antialiased transition-colors duration-500;
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
     background-image: 
-      linear-gradient(rgba(27, 79, 156, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(27, 79, 156, 0.05) 1px, transparent 1px);
+      linear-gradient(var(--clab-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--clab-grid) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 }
 
-/* ── HUD Design Utilities ── */
+/* ── Global Layout Utilities ── */
 @layer components {
+  .soft-card {
+    @apply bg-lab-panel border border-lab-border relative overflow-hidden;
+    border-radius: var(--clab-radius);
+    box-shadow: var(--clab-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .interactive-button {
+    @apply px-4 py-2 font-medium transition-all active:scale-95 flex items-center gap-2;
+    border-radius: calc(var(--clab-radius) / 2);
+  }
+
+  .study-bubble {
+    @apply p-4 relative max-w-[85%];
+    border-radius: var(--clab-radius);
+  }
+
+  /* 兼容性样式，已软化 */
   .hud-card {
-    @apply bg-lab-panel border border-lab-border shadow-2xl relative overflow-hidden;
+    @apply bg-lab-panel border border-lab-border relative overflow-hidden;
+    border-radius: var(--clab-radius);
     box-shadow: var(--clab-shadow);
     backdrop-filter: blur(12px);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .hud-notch {
-    clip-path: polygon(
-      0 0, 
-      calc(100% - 12px) 0, 100% 12px, 
-      100% 100%, 
-      12px 100%, 0 calc(100% - 12px)
-    );
-  }
-
-  .hud-tag {
-    @apply font-display text-[9px] uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm font-bold;
-  }
-
-  .hud-header {
-    @apply font-display uppercase tracking-widest font-bold;
-  }
-
-  .hud-border-accent {
-    @apply relative;
-  }
-
-  .hud-border-accent::before {
-    content: '';
-    @apply absolute top-0 left-0 w-1 h-4 bg-lab-accent;
-  }
-
-  .hud-border-accent::after {
-    content: '';
-    @apply absolute bottom-0 right-0 w-4 h-1 bg-lab-accent2;
-  }
-
-  /* ── Battle HUD Effects ── */
-  .battle-hud-bg {
-    @apply pointer-events-none absolute inset-0 overflow-hidden opacity-[0.05] select-none;
-    background-image: 
-      linear-gradient(var(--clab-accent) 1px, transparent 1px),
-      linear-gradient(90deg, var(--clab-accent) 1px, transparent 1px);
-    background-size: 128px 128px;
-  }
-
-  .battle-hud-scanline {
-    @apply absolute inset-0 pointer-events-none;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      var(--clab-accent) 50%,
-      transparent 100%
-    );
-    background-size: 100% 4px;
-    animation: scanline 8s linear infinite;
-    opacity: 0.05;
-  }
-
-  .battle-hud-corners::before,
-  .battle-hud-corners::after {
-    content: '';
-    @apply absolute w-12 h-12 border-lab-accent/20 pointer-events-none;
-  }
-
-  .battle-hud-corners::before {
-    @apply top-8 left-8 border-t-2 border-l-2;
-  }
-
-  .battle-hud-corners::after {
-    @apply bottom-8 right-8 border-b-2 border-r-2;
   }
 
   @keyframes scanline {
@@ -205,7 +100,7 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {

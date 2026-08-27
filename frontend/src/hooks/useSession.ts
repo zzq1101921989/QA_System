@@ -2,22 +2,29 @@ import { useState, useEffect, useCallback } from 'react';
 import type { SessionMessage, Message } from '../types/chat';
 import { sessionService } from '../services/sessionService';
 
-export default function useSession() {
+export default function useSession(documentId?: string | null) {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessions, setSessions] = useState<SessionMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 初始化：从后端加载会话列表
+  // 初始化或当 documentId 改变时：从后端加载会话列表
   useEffect(() => {
-    sessionService.getSessions()
+    setLoading(true);
+    sessionService.getSessions(documentId)
       .then(data => {
         setSessions(data);
+        // 如果当前选中的会话不在新列表中，或者没有选中会话，则默认选中第一个
         if (data.length > 0) {
-          setCurrentSessionId(data[0].sessionId);
+          const exists = data.find(s => s.sessionId === currentSessionId);
+          if (!exists) {
+            setCurrentSessionId(data[0].sessionId);
+          }
+        } else {
+          setCurrentSessionId(null);
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [documentId]);
 
   /**
    * 开启新会话（后端生成 UUID）

@@ -27,7 +27,7 @@ export const InputBar: React.FC<InputBarProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && onSend()}
-              placeholder={placeholder || "问问学习精灵吧..."}
+              placeholder={placeholder || "问问木木吧..."}
               className="flex-1 bg-transparent border-none outline-none px-4 md:px-6 py-4 text-sm md:text-base text-lab-text placeholder:text-lab-text/30 font-rounded font-medium"
             />
             <button 

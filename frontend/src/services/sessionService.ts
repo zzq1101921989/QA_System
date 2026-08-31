@@ -1,21 +1,9 @@
 import request from '../api/request';
 import type { SessionMessage, Message } from '../types/chat';
 
-interface BackendSession {
-  id: string;
-  title: string | null;
-  createdAt: string;
-  updatedAt: string;
-  documentId?: string | null;
-}
-
 interface BackendChatMessage {
   role: string;
   content: string;
-}
-
-function mapSession(s: BackendSession): SessionMessage {
-  return { sessionId: s.id, sessionName: s.title ?? '新会话', documentId: s.documentId || undefined };
 }
 
 function mapMessage(msg: BackendChatMessage, index: number): Message {

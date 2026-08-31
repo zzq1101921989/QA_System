@@ -70,7 +70,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({ messages, isAsking }) => {
             )}>
               {msg.role === 'assistant' && (
                 <div className="flex items-center gap-2 px-1">
-                  <span className="text-[11px] font-semibold text-lab-accent/80 tracking-wide">学习精灵</span>
+                  <span className="text-[11px] font-semibold text-lab-accent/80 tracking-wide">木木</span>
                   <div className="h-1 w-1 rounded-full bg-lab-accent/30" />
                   <span className="text-[10px] text-lab-text/30 font-medium">刚刚</span>
                 </div>

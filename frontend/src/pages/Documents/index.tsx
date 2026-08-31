@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { 
   BookOpen, Plus, Trash2, BookText, Loader2, Sparkles, ArrowRight, 
-  Clock, Calendar, LayoutGrid, Settings, LogOut, ChevronRight,
-  Trophy, CheckCircle2, Star, Zap, Target, Flame, GraduationCap,
-  TrendingUp, Compass, StickyNote, PenTool, Highlighter
+  Clock, Settings,
+  Trophy, CheckCircle2, Star, Zap, Flame,PenTool, Highlighter
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +33,7 @@ const MOCK_ACHIEVEMENTS = [
 // 假数据：每日任务
 const MOCK_TASKS = [
   { id: 1, text: '阅读《语文》第4页', completed: true },
-  { id: 2, text: '向精灵提问一个问题', completed: false },
+  { id: 2, text: '向木木提问一个问题', completed: false },
   { id: 3, text: '坚持学习 30 分钟', completed: false },
 ];
 
@@ -49,7 +48,7 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ defaultTab = 'dashboard' 
     uploadProgress,
     handleFileUpload,
     deleteDocument,
-  } = useDocuments();
+  } = useDocuments(null);
 
   const navigate = useNavigate();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -87,7 +86,7 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ defaultTab = 'dashboard' 
                   </div>
                   <h2 className="text-5xl font-black tracking-tight leading-tight">
                     嗨，<span className="relative inline-block">
-                      学霸同学
+                      小詹同学
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: '100%' }}
@@ -255,17 +254,63 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ defaultTab = 'dashboard' 
                     </div>
                   </div>
 
-                  {/* 精灵语录：便条风格 */}
-                  <div className="bg-lab-accent/10 p-8 rounded-[3rem] border-2 border-lab-accent/20 relative overflow-hidden group">
-                    <div className="relative z-10 space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-                         <img src="/gumda.png" className="w-8 h-8 object-cover" alt="精灵" />
+                  {/* 木木语录：对话气泡风格 */}
+                  <div className="relative pt-8 group">
+                    {/* 木木头像 - 贴纸融合效果 */}
+                    <motion.div 
+                      animate={{ 
+                        y: [0, -8, 0],
+                        rotate: [-8, -6, -8]
+                      }}
+                      transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -top-6 -left-8 z-20 w-30 h-30 flex items-center justify-center group-hover:rotate-0 transition-transform duration-500"
+                    >
+                      {/* 贴纸白边层 - 模拟厚纸质感，并增加微弱的绿光背景以中和图片色调 */}
+                      <div className="absolute inset-4 bg-gradient-to-br from-white to-[#E8F3F4] rounded-[2.5rem] shadow-[0_12px_40px_rgba(127,179,183,0.15)] border-[6px] border-white" />
+                      
+                      {/* 图片容器 - 使用遮罩淡化边缘的格子纹理 */}
+                      <div className="relative w-full h-full p-6 flex items-center justify-center overflow-hidden">
+                        <img 
+                          src="/gumda.png" 
+                          style={{ 
+                            WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 90%)',
+                            maskImage: 'radial-gradient(circle, black 50%, transparent 90%)'
+                          }}
+                          className="w-full h-full object-contain mix-blend-multiply opacity-95 filter contrast-[1.05]" 
+                          alt="木木" 
+                        />
                       </div>
-                      <p className="text-md font-bold leading-relaxed text-lab-accent italic">
-                        “书本是通往未来的梯子，每爬上一级，你都能看到更广阔的风景。”
-                      </p>
+                      
+                      {/* 装饰性小星星 */}
+                      <div className="absolute top-2 right-2">
+                        <Sparkles className="w-6 h-6 text-lab-warning animate-pulse" />
+                      </div>
+                    </motion.div>
+
+                    {/* 对话气泡主体 */}
+                    <div className="relative bg-gradient-to-br from-white to-[#E8F3F4] p-10 rounded-[3.5rem] border-2 border-lab-accent/10 shadow-xl shadow-lab-accent/5 overflow-hidden">
+                      {/* 巨大的引号装饰 */}
+                      <div className="absolute top-2 left-6 text-8xl font-serif text-lab-accent/5 pointer-events-none select-none">“</div>
+                      
+                      <div className="relative z-10 pl-14 pt-2">
+                        <p className="text-lg font-black leading-relaxed text-lab-accent/80 italic font-rounded">
+                          书本是通往未来的梯子，每爬上一级，你都能看到更广阔的风景。
+                        </p>
+                        <div className="mt-6 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-1 bg-lab-accent/20 rounded-full" />
+                            <span className="text-[10px] font-black text-lab-accent/40 uppercase tracking-[0.2em]">来自木木的鼓励</span>
+                          </div>
+                          <Sparkles className="w-6 h-6 text-lab-accent/20 animate-pulse" />
+                        </div>
+                      </div>
+
+                      {/* 气泡小尾巴装饰 (拟物化) */}
+                      <div className="absolute bottom-[-10px] left-20 w-6 h-6 bg-white rotate-45 border-r-2 border-b-2 border-lab-accent/10" />
+                      
+                      {/* 背景光晕 */}
+                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-lab-accent/5 rounded-full blur-3xl group-hover:scale-150" />
                     </div>
-                    <Sparkles className="absolute bottom-4 right-8 w-12 h-12 text-lab-accent/10 group-hover:scale-125 transition-transform duration-700" />
                   </div>
                 </div>
 
@@ -324,7 +369,7 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ defaultTab = 'dashboard' 
                     {doc.status === 'processing' && (
                       <div className="space-y-3 my-8">
                         <div className="flex justify-between items-center text-[10px] font-black text-lab-text/30 uppercase tracking-widest">
-                          <span>精灵正在翻阅中...</span>
+                          <span>木木正在翻阅中...</span>
                           <span>{Math.round(uploadProgress)}%</span>
                         </div>
                         <div className="w-full bg-lab-bg rounded-full h-2 overflow-hidden">
@@ -367,7 +412,7 @@ const DocumentsPage: React.FC<DocumentsPageProps> = ({ defaultTab = 'dashboard' 
                 <Settings className="w-12 h-12 text-lab-text/10" />
               </div>
               <h2 className="text-4xl font-black">设置中心</h2>
-              <p className="mt-4 font-bold text-lab-text/30 italic">这里还在装修中，精灵晚点再来哦～</p>
+              <p className="mt-4 font-bold text-lab-text/30 italic">这里还在装修中，木木晚点再来哦～</p>
             </div>
           )}
         </div>

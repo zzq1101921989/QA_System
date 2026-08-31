@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, X, MessageSquarePlus, MessageSquare, Trash2, Pencil, Check, Home, ChevronLeft } from 'lucide-react';
+import { Database, X, MessageSquarePlus, MessageSquare, Trash2, Pencil, Check, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { SessionMessage } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';

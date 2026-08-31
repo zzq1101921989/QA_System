@@ -67,6 +67,9 @@ QA_System/
 
 ## 📊 架构与逻辑现状
 
+### 产品方案
+- **手账化学习**: 核心设计理念参考 [scrapbook-learning-concept.md](file:///d:/code/QA_System/docs/product/scrapbook-learning-concept.md)。
+
 ### 前端页面布局与逻辑
 - **页面布局**: 采用响应式设计 (`DesktopLayout` / `MobileLayout`)，主页面划分侧边栏 (`Sidebar`) 与聊天区 (`ChatArea`)。
 - **核心组件**:

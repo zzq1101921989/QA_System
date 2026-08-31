@@ -22,7 +22,7 @@ export const NavSidebar: React.FC = () => {
         <div className="w-10 h-10 rounded-2xl bg-lab-accent flex items-center justify-center shadow-lg shadow-lab-accent/20 group-hover:scale-110 transition-transform">
           <Sparkles className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-xl font-bold font-rounded tracking-tight text-lab-text">学习精灵</h1>
+        <h1 className="text-xl font-bold font-rounded tracking-tight text-lab-text">木木小课堂</h1>
       </div>
 
       <nav className="flex-1 space-y-2">

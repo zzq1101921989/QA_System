@@ -2,12 +2,18 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Document } from '../types/chat';
 import { documentService } from '../services/documentService';
 
-export function useDocuments() {
+export function useDocuments(initialSelectedDocId: string | null) {
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(initialSelectedDocId);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (initialSelectedDocId !== selectedDocId) {
+      setSelectedDocId(initialSelectedDocId);
+    }
+  }, [initialSelectedDocId, selectedDocId]);
 
   // 初始化时从后端同步文档列表
   useEffect(() => {

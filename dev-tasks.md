@@ -38,14 +38,19 @@ Phase 1 (检索质量提升) ──── 当前正在做
     ├── 多路召回 ⬅️ 下一个任务
     └── 混合解析优化
 
-Phase 2 (主动学习 & 任务机制) ──── 正在进行
+Phase 2 (手账化治愈系学习 - 核心体验) ──── 正在进行
     ├── 文档主动分析 (概要/关键词/大纲) ✅ 已完成
     ├── 原文高保真预览与大纲分栏 ✅ 已完成
     ├── 桌面端 UI 汉化 ✅ 已完成
-    ├── 学习引导 (推荐提问/引导卡片) ⬅️ 下一个任务
-    └── 刷题打卡 (任务驱动)
+    ├── 仪式感学习流 (预测贴 -> 寻证背包 -> 盖章) ⬅️ 下一个任务
+    ├── 手账作品模板 (三格/人物卡/观点卡)
+    └── 单元地图与支线彩蛋
 
-Phase 3 (产品化打磨) ──── 待开始
+Phase 3 (任务机制与打磨) ──── 待开始
+    ├── 行为印章体系 (证据/好奇/成长等)
+    ├── 流式输出 (SSE + 打字机效果)
+    ├── 可视化溯源 (悬浮原文卡片)
+    └── 多模态解析 (表格/图片 OCR)
 ```
 
 ---
@@ -270,188 +275,97 @@ const keywords = tokenizer.tokenize(question); // 提取关键词
 
 ---
 
-### 任务 2.3 学习引导与推荐问题 ⬅️
+### 任务 2.3 仪式感学习流 (Ritual Learning Flow) ⬅️
 
-**目标**：基于文档概要，自动生成“你可能想问”的问题列表，降低用户学习门槛。
+**目标**：将单一的问答重构为包含“预测贴 -> 寻证背包 -> 盖章”的四步仪式，增强学习的掌控感。
+
+#### 核心组件与改动
+1. **预测贴 (Prediction Sticker)**:
+   - UI: 聊天区顶部浮动卡片，记录初始预测。
+   - 逻辑: 学习开始前强制触发，木木提问。
+2. **寻证背包 (Evidence Bag)**:
+   - UI: 右侧边栏/浮窗，存储从 PDF 拖拽或点击选中的片段。
+   - 逻辑: 限制每小节收集 2-3 条，需关联“它证明了什么”。
+3. **盖章反馈 (Stamping)**:
+   - UI: 拟物化印章动画。
+   - 逻辑: 任务完成后，木木作为“盖章官”确认。
+
+#### 验收标准
+- [ ] 进入文档小节学习时，木木主动发起预测提问
+- [ ] 用户可以从 PDF 预览区“抓取”证据放入背包
+- [ ] 流程结束后显示今日手账页预览
+
+---
+
+### 任务 2.4 手账作品模板 (Scrapbook Templates)
+
+**目标**：提供三套文科适配的模板，让孩子将证据转化为作品。
+
+#### 模板规格
+- **三格手账**: [见] + [思] + [证] (适用于低年级)
+- **人物卡**: 姓名、动机、核心事迹、我的评价 (语文/历史)
+- **观点卡**: 核心论点、支持证据、例外情况 (高年级/批判性阅读)
+
+#### 验收标准
+- [ ] 支持在右侧区域切换模板
+- [ ] 模板可自动填入背包中的证据
+- [ ] 支持导出/预览生成的单页手账
+
+---
+
+### 任务 2.5 单元地图与支线彩蛋
+
+**目标**：将枯燥的列表改为关卡式的单元地图。
 
 #### 核心逻辑
-1. 提取文档概要中的核心知识点。
-2. LLM 生成 3-5 个由浅入深的引导性问题。
-3. 用户点击问题直接发起 RAG 对话。
+- **地图生成**: 根据 Prisma 中的 Document 元数据生成节点。
+- **进度可见**: 已完成节点显示印章，未完成为灰度。
+- **彩蛋触发**: 检索到特定关键词或完成特定行为（如提出好问题）时，弹出彩蛋贴纸。
 
 ---
 
-### 任务 2.4 刷题打卡 (Quiz & Streak)
+## Phase 3 — 任务机制与打磨
 
-**目标**：在用户完成文档概览和初步学习后，通过任务机制驱动持续学习。
+### 任务 3.1 行为印章体系 (Behavior Stamps)
 
-#### 改动文件
+**目标**：奖励学习习惯，而非仅仅奖励正确率。
 
-| 文件 | 改动类型 | 改动说明 |
-|------|----------|----------|
-| [quiz.service.ts](file:///d:/code/QA_System/backend/src/services/quiz.service.ts) | **新增** | 题目生成、答案校验服务 |
-| [quiz.controller.ts](file:///d:/code/QA_System/backend/src/controllers/quiz.controller.ts) | **新增** | 出题、答题、打卡统计接口 |
-| [api.ts](file:///d:/code/QA_System/backend/src/routes/api.ts) | 修改 | 注册 `/quiz` 路由 |
-| [quizService.ts](file:///d:/code/QA_System/frontend/src/services/quizService.ts) | **新增** | 前端 API 封装 |
-| [index.tsx](file:///d:/code/QA_System/frontend/src/pages/Quiz/index.tsx) | **新增** | 刷题页面 |
-
-#### 核心功能拆解
-
-| 优先级 | 功能 | 说明 |
-|--------|------|------|
-| P0 | 题目生成 | 从文档片段生成选择题（4 选项 + 答案） |
-| P0 | 答题交互 | 展示题目，选择选项，判断对错 |
-| P0 | 每日打卡 | 每天首次完成答题自动打卡，统计连续天数 |
-| P1 | 错题回顾 | 收集答错的题目，单独出卷 |
-
-#### 验收标准
-
-- [ ] 进入刷题页：显示今日题目（5 道选择题）
-- [ ] 全部答完：显示正确率，自动打卡
-- [ ] 侧边栏显示打卡状态和连续天数
+#### 印章定义
+- **证据章**: 引用并解释。
+- **好奇章**: 提问引发深度检索。
+- **成长章**: 修改了预测贴的观点。
+- **勇气章**: 面对复杂文本持续探索。
 
 ---
 
-### 任务 2.5 可视化溯源
-
-**目标**：AI 回答中引用来源时，鼠标悬浮高亮展示原文片段，点击可跳转到文档位置。
-
-#### 改动文件
-
-| 文件 | 改动类型 | 改动说明 |
-|------|----------|----------|
-| [ChatArea.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/ChatArea.tsx) | 修改 | 来源引用改为悬浮卡片展示 |
-| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 修改 | 返回结构化来源数据（含原文片段） |
-
-#### 返回数据格式变化
-
-```typescript
-// 当前格式
-{ message: "...", sources: ["文件A.pdf", "文件B.pdf"] }
-
-// 新格式
-{ 
-  message: "...", 
-  sources: [
-    { 
-      fileName: "文件A.pdf", 
-      snippet: "这是被引用的原文片段...",  // 具体引用内容
-      chunkId: "uuid-xxx",
-      score: 0.92    // 相似度分数
-    }
-  ]
-}
-```
-
-#### 前端交互
-
-```
-回答文本中显示: "根据片段 1、片段 2……"
-                            │
-                    鼠标悬浮 ┤
-                            ▼
-                   ┌─────────────────────┐
-                   │ 文件A.pdf            │
-                   │ 相关度: 92%          │
-                   │ ─────────────────    │
-                   │ "这是被引用的原文     │
-                   │  片段内容预览..."    │
-                   │                     │
-                   │ [跳转到文件位置]      │
-                   └─────────────────────┘
-```
-
-#### 验收标准
-
-- [ ] 回答中的来源引用鼠标悬浮时显示原文片段卡片
-- [ ] 卡片展示来源文件名、相似度分数、原文片段
-- [ ] 点击可滚动画布定位（如需要）
-
----
-
-## Phase 3 — 产品化打磨
-
-### 任务 3.1 流式输出（Streaming）
+### 任务 3.2 流式输出 (SSE + 打字机效果)
 
 **目标**：LLM 回答以 SSE 流式逐字返回，前端打字机效果。
 
-#### 改动范围
+---
 
-| 文件 | 改动类型 |
-|------|----------|
-| [chat.controller.ts](file:///d:/code/QA_System/backend/src/controllers/chat.controller.ts) | 改为 SSE 响应 |
-| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | 新增 streamAsk 方法 |
-| [documentService.ts](file:///d:/code/QA_System/frontend/src/services/documentService.ts) | 新增流式请求方法 |
-| [useMessages.ts](file:///d:/code/QA_System/frontend/src/hooks/useMessages.ts) | 改为逐字追加消息内容 |
-| [ChatArea.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/ChatArea.tsx) | 显示流式游标动画 |
+### 任务 3.3 可视化溯源 (悬浮原文卡片)
 
-#### 技术方案
-
-```typescript
-// 后端 SSE 响应
-res.setHeader('Content-Type', 'text/event-stream');
-const stream = await llm.stream(messages);
-for await (const chunk of stream) {
-  res.write(`data: ${JSON.stringify({ content: chunk.content })}\n\n`);
-}
-res.write('data: [DONE]\n\n');
-res.end();
-```
+**目标**：AI 回答中引用来源时，鼠标悬浮高亮展示原文片段，点击跳转。
 
 ---
 
-### 任务 3.2 多模态解析
+### 任务 3.4 多模态解析 (表格/图片 OCR)
 
 **目标**：表格结构化提取、图片 OCR。
-
-详见此前讨论的「混合解析」方案（文本提取 → 内容过少 → 触底切换 OCR）。
-
-#### 改动范围
-
-| 文件 | 改动类型 |
-|------|----------|
-| [pdf_parser.py](file:///d:/code/QA_System/python-document2markdown/app/services/pdf_parser.py) | 增加 OCR 触底逻辑 |
-| [requirements.txt](file:///d:/code/QA_System/python-document2markdown/requirements.txt) | 新增依赖 |
-
----
-
-### 任务 3.3 Namespace 隔离
-
-**目标**：按知识领域分空间，实现多租户逻辑隔离。
-
-在 Chroma 的 metadata 中增加 `namespace` 字段，所有查询/入库操作均带此过滤。
-
-#### 改动范围
-
-| 文件 | 改动类型 |
-|------|----------|
-| [ingestion.service.ts](file:///d:/code/QA_System/backend/src/services/ingestion.service.ts) | 元数据加 namespace |
-| [ask.service.ts](file:///d:/code/QA_System/backend/src/services/ask.service.ts) | filter 加 namespace |
-| [useDocuments.ts](file:///d:/code/QA_System/frontend/src/hooks/useDocuments.ts) | 上传/列表接口带 namespace |
-| [Sidebar.tsx](file:///d:/code/QA_System/frontend/src/pages/Chat/common/Sidebar.tsx) | 增加空间切换 UI |
 
 ---
 
 ## 任务执行建议
 
 ### 本周优先 (Phase 1 收尾 & Phase 2 启动)
+1. 任务 1.3 多路召回 (关键词+向量)
+2. 任务 2.1 文档主动分析 (概要生成)
+3. 任务 2.3 仪式感学习流 (核心逻辑)
 
-```
-1. 任务 1.3 多路召回 (关键词+向量)  →  2-3 天
-2. 任务 2.1 文档主动分析 (概要生成)  →  1-2 天 (核心: 概览先行)
-3. 任务 2.2 学习引导 (引导卡片)      →  1 天
-```
-
-### 下周重点 (任务机制实现)
-
-```
-任务 2.3 刷题打卡 (P0 功能)        →  4-5 天
-```
-
-选择“文档分析”作为 Phase 2 启动项的原因：
-- **符合认知规律**：先概览文档（Summary）再进行深入学习或测验（Quiz）。
-- **降低门槛**：自动生成的关键词和推荐问题能有效引导用户开始对话。
-- **UI 连贯性**：完善侧边栏和对话区的初始展示，提升产品完成度。
+### 下周重点 (手账化体验)
+1. 任务 2.4 手账作品模板
+2. 任务 3.1 行为印章体系
 
 ---
 

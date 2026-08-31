@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 
 export type ThemeId = 'warm';
 
@@ -17,8 +17,6 @@ export const themes: ThemeInfo[] = [
 const STORAGE_THEME_KEY = 'qa_theme';
 
 export function useTheme() {
-  const [themeId, setThemeId] = useState<ThemeId>('warm');
-
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', 'warm');
     localStorage.setItem(STORAGE_THEME_KEY, 'warm');
@@ -26,7 +24,7 @@ export function useTheme() {
 
   const currentTheme = themes[0];
 
-  const switchTheme = useCallback((id: ThemeId) => {
+  const switchTheme = useCallback(() => {
     // 仅保留一个主题，不做实际切换
   }, []);
 

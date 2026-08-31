@@ -1,10 +1,12 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { useLayout } from '../../hooks/useLayout';
 import { useChat } from '../../hooks/useChat';
 import { DesktopLayout } from './desktop/DesktopLayout';
 import { MobileLayout } from './mobile/MobileLayout';
 
 const ChatPage: React.FC = () => {
+  const { docId } = useParams();
   const { isSidebarOpen, isMobile, toggleSidebar, closeSidebar } = useLayout();
   const {
     documents,
@@ -21,7 +23,7 @@ const ChatPage: React.FC = () => {
     switchSession,
     deleteSession,
     updateSessionName,
-  } = useChat();
+  } = useChat(docId ?? null);
 
   if (isMobile) {
     return (

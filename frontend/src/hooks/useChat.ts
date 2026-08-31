@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDocuments } from './useDocuments';
 import { useMessages } from './useMessages';
 import useSession from './useSession';
 
-export function useChat() {
+export function useChat(routeDocId: string | null = null) {
+  const navigate = useNavigate();
   const {
     documents,
     selectedDocId,
@@ -12,7 +14,8 @@ export function useChat() {
     handleFileUpload,
     selectDocument,
     deleteDocument,
-  } = useDocuments();
+  } = useDocuments(routeDocId);
+  
 
   const {
     currentSessionId,
@@ -23,7 +26,6 @@ export function useChat() {
     deleteSession,
     updateSessionName,
     getSessionMessages,
-    updateSessionDocument,
   } = useSession(selectedDocId);
 
   const {
@@ -40,6 +42,15 @@ export function useChat() {
     createNewSession,
     updateSessionName,
   });
+
+  useEffect(() => {
+    if (routeDocId === selectedDocId) return;
+    if (selectedDocId) {
+      navigate(`/study/${selectedDocId}`, { replace: true });
+      return;
+    }
+    navigate('/study', { replace: true });
+  }, [navigate, routeDocId, selectedDocId]);
 
   const handleSelectDocument = useCallback((docId: string | null, force: boolean = false) => {
     const finalId = force ? docId : (selectedDocId === docId ? null : docId);

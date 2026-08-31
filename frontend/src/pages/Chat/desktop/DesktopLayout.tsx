@@ -126,7 +126,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
             <header className="h-14 border-b border-lab-border/50 flex items-center justify-between px-6 bg-lab-panel/50 backdrop-blur-xl flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-lab-accent rounded-full animate-pulse shadow-[0_0_8px_var(--clab-accent)]" />
-                <span className="text-sm font-bold text-lab-text/70 font-rounded tracking-wide uppercase">学习精灵陪伴中</span>
+                <span className="text-sm font-bold text-lab-text/70 font-rounded tracking-wide uppercase">木木陪伴中</span>
               </div>
               
               {!selectedDoc && (
@@ -145,7 +145,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                   <div className="w-24 h-24 rounded-3xl bg-lab-accent/10 flex items-center justify-center mb-6 shadow-inner border border-lab-accent/20">
                     <img src="/gumda.png" alt="AI" className="w-16 h-16 object-cover opacity-80" />
                   </div>
-                  <h3 className="text-xl font-bold text-lab-text font-rounded mb-2">你好，我是你的学习精灵！</h3>
+                  <h3 className="text-xl font-bold text-lab-text font-rounded mb-2">你好，我是你的木木！</h3>
                   <p className="text-sm text-lab-text/50 font-rounded max-w-sm leading-relaxed">
                     {selectedDoc 
                       ? `我们现在要一起学习《${selectedDoc.name}》。在左边阅读时，有任何不懂的地方，都可以随时问我哦！`
@@ -160,7 +160,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
                 input={input}
                 setInput={setInput}
                 onSend={onSend}
-                placeholder={selectedDoc ? "对这本课本有什么疑问吗？" : "问问学习精灵吧..."}
+                placeholder={selectedDoc ? "对这本课本有什么疑问吗？" : "问问木木吧..."}
               />
             </div>
           </div>

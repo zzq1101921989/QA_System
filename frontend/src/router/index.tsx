@@ -1,7 +1,9 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import ChatPage from '../pages/Chat';
-import DocumentsPage from '../pages/Documents';
+import DashboardPage from '../pages/dashboard/DashboardPage';
+import ShelfPage from '../pages/shelf/ShelfPage';
+import SettingsPage from '../pages/settings/SettingsPage';
+import StudyPage from '../pages/study/StudyPage';
 
 export const router = createBrowserRouter([
   {
@@ -14,19 +16,19 @@ export const router = createBrowserRouter([
       },
       {
         path: '/dashboard',
-        element: <DocumentsPage defaultTab="dashboard" />,
+        element: <DashboardPage />,
       },
       {
         path: '/shelf',
-        element: <DocumentsPage defaultTab="shelf" />,
+        element: <ShelfPage />,
       },
       {
         path: '/settings',
-        element: <DocumentsPage defaultTab="settings" />,
+        element: <SettingsPage />,
       },
       {
         path: '/study/:docId?',
-        element: <ChatPage />,
+        element: <StudyPage />,
       },
       // 兼容旧路由
       {

@@ -51,32 +51,49 @@ export class DocumentController {
 
       const filename = decodeFilename(file);
 
-      // Step 0: 调用 Python 解析微服务，获取 Markdown
-      const parseResult = await this.parserService.parseDocument({
-        ...file,
-        fileName: filename,
+      // 生成主键 documentId
+      const documentId = Math.random().toString(36).substring(2, 11);
+
+      // 先创建一条空的文档记录，用于后续更新
+      const createdDoc = await documentRepository.create({
+        documentId,
+        name: filename,
+        status: 'processing',
+        chunkCount: 0,
+        pageCount: 0,
+        elements: '[]',
+        filePath: file.path,
+        mimeType: file.mimetype,
       });
 
-      // 保存解析结果到 debug_parsed/ 目录，用于排查转换完整性
-      writeDebugFile(filename, parseResult.markdown);
-      writeDebugFile(filename + '_elements.json', JSON.stringify(parseResult.elements));
+      res.status(202).json({
+        id: createdDoc.documentId,
+        name: createdDoc.name,
+        status: createdDoc.status,
+        createdAt: createdDoc.createdAt,
+        chunkCount: createdDoc.chunkCount,
+        summary: createdDoc.summary,
+        keywords: createdDoc.keywords,
+        outline: createdDoc.outline ? JSON.parse(createdDoc.outline) : []
+      });
 
-      // 核心处理逻辑：拆分、入库、生成数据库记录已下沉至 Service 层
-      const uploadedDoc = await this.ingestionService.processDocument(
-        parseResult,
-        file.path,
-        file.mimetype
-      );
+      setImmediate(() => {
+        void (async () => {
+          try {
+            const parseResult = await this.parserService.parseDocument({
+              ...file,
+              fileName: filename,
+            });
 
-      res.status(200).json({
-        id: uploadedDoc.documentId,
-        name: uploadedDoc.name,
-        status: uploadedDoc.status,
-        createdAt: uploadedDoc.createdAt,
-        chunkCount: uploadedDoc.chunkCount,
-        summary: uploadedDoc.summary,
-        keywords: uploadedDoc.keywords,
-        outline: uploadedDoc.outline ? JSON.parse(uploadedDoc.outline) : []
+            writeDebugFile(filename, parseResult.markdown);
+            writeDebugFile(filename + '_elements.json', JSON.stringify(parseResult.elements));
+
+            await this.ingestionService.processDocument(documentId, parseResult, file.path, file.mimetype);
+          } catch (error) {
+            console.error('[DocumentController] Background ingestion failed:', error);
+            await documentRepository.updateStatus(documentId, 'error');
+          }
+        })();
       });
     } catch (error) {
       next(error);
@@ -112,7 +129,7 @@ export class DocumentController {
     try {
       const id = req.params.id as string;
       const doc = await documentRepository.findByDocumentId(id);
-      
+
       if (!doc || !doc.filePath || !fs.existsSync(doc.filePath)) {
         res.status(404).json({ message: '文件不存在' });
         return;

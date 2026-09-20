@@ -5,17 +5,60 @@ import 'dotenv/config';
 import { llm } from '../core/llm.client';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 
+
+
+
+export interface DirectoryChunk {
+  title: string;
+  startPage: number;
+  endPage: number;
+  level: number;
+  chunks: DirectoryChunk[];
+}
+
+export interface DirectoryRequest {
+  title: string;
+  documentStartPage: number;
+  documentEndPage: number;
+  chunks: DirectoryChunk[];
+}
+
 export interface ParserResult {
   filename: string;
   content_type: string;
   markdown: string;
   elements: any[];
+  /**
+   * 目录请求，用于生成目录
+   */
+  directoryRequests: DirectoryRequest[];
   metadata: {
     size: number;
     source: string;
     page_count: number;
   };
 }
+
+export interface NormalizedElementBase {
+  id: number;
+  type: string;
+  pageNumber: number;
+  boundingBox?: [number, number, number, number];
+  content?: string;
+};
+
+export type NormalizedHeadingElement = NormalizedElementBase & {
+  type: 'heading';
+  headingLevel: number;
+  content: string;
+};
+
+export type NormalizedElement = NormalizedHeadingElement | NormalizedElementBase;
+
+
+
+
+
 
 export class ParserService {
   private readonly baseUrl: string;
@@ -65,6 +108,8 @@ export class ParserService {
 
   /**
    * 将长文档拆分后并行调用 LLM 进行分段清洗
+   * @param rawMarkdown - 待清理的 Markdown 内容
+   * @returns 清理后的 Markdown 内容
    */
   public async refineMarkdownChunked(rawMarkdown: string): Promise<string> {
     if (!rawMarkdown || rawMarkdown.trim().length < 100) {
@@ -88,6 +133,59 @@ export class ParserService {
 
     // 合并清理后的分段
     return refinedChunks.join('\n\n');
+  }
+
+  /**
+   * 通过AI,把 python解析出来的json数据,转换为 DirectoryRequest 格式，方便后续进行章节展示
+   * @param json - python解析出来的json数据
+   * @returns DirectoryRequest 格式的章节数据
+   */
+  public async parseDirectoriesAndCorrespondingPaging(json: NormalizedElement[]): Promise<DirectoryRequest[]> {
+    // 过滤掉 image 元素
+    const orderedWithoutImages = json.filter((e) => e.type !== 'image');
+    const promptBody = JSON.stringify(orderedWithoutImages, null, 2);
+
+    const prompt = `
+      你是一个“课本目录/文章页面范围”提取器。
+      目标：基于输入的页面元素（含 heading/paragraph 等）识别目录树，并为每个节点输出连续的页码区间（闭区间）。
+
+      输入数据（JSON 数组）：
+      ${promptBody}
+
+      规则（必须遵守）：
+      1) 仅允许从输入数据中提取信息，不得补写不存在的标题、单元、文章。
+      2) 目录节点标题必须来自 type === "heading" 的 content（去掉首尾空格）。
+      3) 每个节点 startPage/endPage 必须为整数且满足 startPage <= endPage，且区间必须连续。
+      4) 页码只能使用输入数据中出现过的 pageNumber 范围：不得超出最小/最大页。
+      5) 同一页可能存在多个 heading：按输入数组顺序作为出现顺序。
+      6) 节点层级依据 headingLevel：level 越小越靠上；相同 level 为同级；更大 level 为子级。
+      7) endPage 的确定：优先使用“下一个同级或更高层级 heading 的起始页 - 1”；如果下一个标题与当前标题在同一页，则 endPage 至少为 startPage；最后一个节点的 endPage 为最大页。
+      8) 如果无法可靠判断层级/范围，宁可减少节点：可输出更扁平的结构，但不得编造。
+
+      输出要求（严格）：
+      - 只输出一个可被 JSON.parse() 解析的 JSON 对象
+      - 不要输出 Markdown，不要输出解释文字，不要使用代码块标记
+      - 不需要有无用的回车或空行或者换行等符号
+
+      输出 JSON Schema（示例结构，不是示例值）：
+      {
+        "title": string,
+        "documentStartPage": number,
+        "documentEndPage": number,
+        "chunks": [
+          {
+            "title": string,
+            "startPage": number,
+            "endPage": number,
+            "level": number,
+            "chunks": []
+          }
+        ]
+      }
+    `
+    const response = await llm.invoke(prompt);
+
+    return JSON.parse(response.content as string) as DirectoryRequest[];
   }
 
   /**
@@ -134,9 +232,16 @@ export class ParserService {
         maxBodyLength: Infinity,
       });
 
+      // 对解析结果进行分段优化，调整到一个比较满意的状态
       const cleanedMarkdown = await this.refineMarkdownChunked(response.data.markdown);
-      // 替换原始 Markdown 内容
+
+      const normalizedElements = response.data.elements as NormalizedElement[];
+
+      // 解析目录和页面范围
+      const directoryRequests = await this.parseDirectoriesAndCorrespondingPaging(normalizedElements);
+
       response.data.markdown = cleanedMarkdown;
+      response.data.directoryRequests = directoryRequests;
 
       return response.data;
     } catch (error: any) {

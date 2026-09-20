@@ -45,6 +45,7 @@ export type DocumentMinAggregateOutputType = {
   summary: string | null
   keywords: string | null
   outline: string | null
+  toc: string | null
   elements: string | null
   filePath: string | null
   mimeType: string | null
@@ -62,6 +63,7 @@ export type DocumentMaxAggregateOutputType = {
   summary: string | null
   keywords: string | null
   outline: string | null
+  toc: string | null
   elements: string | null
   filePath: string | null
   mimeType: string | null
@@ -79,6 +81,7 @@ export type DocumentCountAggregateOutputType = {
   summary: number
   keywords: number
   outline: number
+  toc: number
   elements: number
   filePath: number
   mimeType: number
@@ -108,6 +111,7 @@ export type DocumentMinAggregateInputType = {
   summary?: true
   keywords?: true
   outline?: true
+  toc?: true
   elements?: true
   filePath?: true
   mimeType?: true
@@ -125,6 +129,7 @@ export type DocumentMaxAggregateInputType = {
   summary?: true
   keywords?: true
   outline?: true
+  toc?: true
   elements?: true
   filePath?: true
   mimeType?: true
@@ -142,6 +147,7 @@ export type DocumentCountAggregateInputType = {
   summary?: true
   keywords?: true
   outline?: true
+  toc?: true
   elements?: true
   filePath?: true
   mimeType?: true
@@ -246,6 +252,7 @@ export type DocumentGroupByOutputType = {
   summary: string | null
   keywords: string | null
   outline: string | null
+  toc: string | null
   elements: string | null
   filePath: string | null
   mimeType: string | null
@@ -286,6 +293,7 @@ export type DocumentWhereInput = {
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
+  toc?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
   filePath?: Prisma.StringNullableFilter<"Document"> | string | null
   mimeType?: Prisma.StringNullableFilter<"Document"> | string | null
@@ -303,6 +311,7 @@ export type DocumentOrderByWithRelationInput = {
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
+  toc?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
   filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -323,6 +332,7 @@ export type DocumentWhereUniqueInput = Prisma.AtLeast<{
   summary?: Prisma.StringNullableFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableFilter<"Document"> | string | null
   outline?: Prisma.StringNullableFilter<"Document"> | string | null
+  toc?: Prisma.StringNullableFilter<"Document"> | string | null
   elements?: Prisma.StringNullableFilter<"Document"> | string | null
   filePath?: Prisma.StringNullableFilter<"Document"> | string | null
   mimeType?: Prisma.StringNullableFilter<"Document"> | string | null
@@ -340,6 +350,7 @@ export type DocumentOrderByWithAggregationInput = {
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   keywords?: Prisma.SortOrderInput | Prisma.SortOrder
   outline?: Prisma.SortOrderInput | Prisma.SortOrder
+  toc?: Prisma.SortOrderInput | Prisma.SortOrder
   elements?: Prisma.SortOrderInput | Prisma.SortOrder
   filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -365,6 +376,7 @@ export type DocumentScalarWhereWithAggregatesInput = {
   summary?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   keywords?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   outline?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
+  toc?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   elements?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   filePath?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
   mimeType?: Prisma.StringNullableWithAggregatesFilter<"Document"> | string | null
@@ -382,6 +394,7 @@ export type DocumentCreateInput = {
   summary?: string | null
   keywords?: string | null
   outline?: string | null
+  toc?: string | null
   elements?: string | null
   filePath?: string | null
   mimeType?: string | null
@@ -399,6 +412,7 @@ export type DocumentUncheckedCreateInput = {
   summary?: string | null
   keywords?: string | null
   outline?: string | null
+  toc?: string | null
   elements?: string | null
   filePath?: string | null
   mimeType?: string | null
@@ -416,6 +430,7 @@ export type DocumentUpdateInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -433,6 +448,7 @@ export type DocumentUncheckedUpdateInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -450,6 +466,7 @@ export type DocumentCreateManyInput = {
   summary?: string | null
   keywords?: string | null
   outline?: string | null
+  toc?: string | null
   elements?: string | null
   filePath?: string | null
   mimeType?: string | null
@@ -467,6 +484,7 @@ export type DocumentUpdateManyMutationInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -484,6 +502,7 @@ export type DocumentUncheckedUpdateManyInput = {
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   keywords?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   outline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  toc?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   elements?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -501,6 +520,7 @@ export type DocumentCountOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
+  toc?: Prisma.SortOrder
   elements?: Prisma.SortOrder
   filePath?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -523,6 +543,7 @@ export type DocumentMaxOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
+  toc?: Prisma.SortOrder
   elements?: Prisma.SortOrder
   filePath?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -540,6 +561,7 @@ export type DocumentMinOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   keywords?: Prisma.SortOrder
   outline?: Prisma.SortOrder
+  toc?: Prisma.SortOrder
   elements?: Prisma.SortOrder
   filePath?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -572,6 +594,7 @@ export type DocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   summary?: boolean
   keywords?: boolean
   outline?: boolean
+  toc?: boolean
   elements?: boolean
   filePath?: boolean
   mimeType?: boolean
@@ -589,6 +612,7 @@ export type DocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   summary?: boolean
   keywords?: boolean
   outline?: boolean
+  toc?: boolean
   elements?: boolean
   filePath?: boolean
   mimeType?: boolean
@@ -606,6 +630,7 @@ export type DocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   summary?: boolean
   keywords?: boolean
   outline?: boolean
+  toc?: boolean
   elements?: boolean
   filePath?: boolean
   mimeType?: boolean
@@ -623,6 +648,7 @@ export type DocumentSelectScalar = {
   summary?: boolean
   keywords?: boolean
   outline?: boolean
+  toc?: boolean
   elements?: boolean
   filePath?: boolean
   mimeType?: boolean
@@ -631,7 +657,7 @@ export type DocumentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "chunkCount" | "page_count" | "summary" | "keywords" | "outline" | "elements" | "filePath" | "mimeType" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
+export type DocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "chunkCount" | "page_count" | "summary" | "keywords" | "outline" | "toc" | "elements" | "filePath" | "mimeType" | "documentId" | "createdAt" | "updatedAt", ExtArgs["result"]["document"]>
 
 export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Document"
@@ -645,6 +671,7 @@ export type $DocumentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     summary: string | null
     keywords: string | null
     outline: string | null
+    toc: string | null
     elements: string | null
     filePath: string | null
     mimeType: string | null
@@ -1082,6 +1109,7 @@ export interface DocumentFieldRefs {
   readonly summary: Prisma.FieldRef<"Document", 'String'>
   readonly keywords: Prisma.FieldRef<"Document", 'String'>
   readonly outline: Prisma.FieldRef<"Document", 'String'>
+  readonly toc: Prisma.FieldRef<"Document", 'String'>
   readonly elements: Prisma.FieldRef<"Document", 'String'>
   readonly filePath: Prisma.FieldRef<"Document", 'String'>
   readonly mimeType: Prisma.FieldRef<"Document", 'String'>

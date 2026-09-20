@@ -101,6 +101,7 @@ export const DocumentScalarFieldEnum = {
   summary: 'summary',
   keywords: 'keywords',
   outline: 'outline',
+  toc: 'toc',
   elements: 'elements',
   filePath: 'filePath',
   mimeType: 'mimeType',

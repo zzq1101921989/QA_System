@@ -1,18 +1,5 @@
 import prisma from '../core/prisma.client';
-
-export interface CreateDocumentDto {
-  documentId: string;
-  name: string;
-  status: string;
-  chunkCount: number;
-  pageCount: number;
-  elements: string;
-  filePath?: string;
-  mimeType?: string;
-  summary?: string;
-  keywords?: string;
-  outline?: string;
-}
+import type { CreateDocumentDto, UpdateDocumentDto } from './dtos/document.dto';
 
 export class DocumentRepository {
   public async create(data: CreateDocumentDto) {
@@ -23,12 +10,13 @@ export class DocumentRepository {
         status: data.status,
         chunkCount: data.chunkCount,
         page_count: data.pageCount,
-        elements: data.elements,
+        elements: data.elements,  
         filePath: data.filePath,
         mimeType: data.mimeType,
         summary: data.summary,
         keywords: data.keywords,
         outline: data.outline,
+        toc: data.toc,
       },
     });
   }
@@ -58,6 +46,20 @@ export class DocumentRepository {
       where: { documentId },
       data: { status },
     });
+  }
+
+  public async updateByDocumentId(documentId: string, data: UpdateDocumentDto) {
+    const { pageCount, ...rest } = data;
+
+    await prisma.document.updateMany({
+      where: { documentId },
+      data: {
+        ...rest,
+        ...(pageCount === undefined ? {} : { page_count: pageCount }),
+      },
+    });
+
+    return await this.findByDocumentId(documentId);
   }
 }
 

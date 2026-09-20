@@ -40,6 +40,7 @@ model Document {
   summary    String?
   keywords   String?  // 存储为 JSON 字符串
   outline    String?  // 存储为 JSON 字符串
+  toc        String?  // 存储为 JSON 字符串，用来保存目录和目录对应的页码信息
   elements   String?  // 解析后的元素组合数组，含 pageNumber、bbox 等位置信息（JSON 字符串）
   filePath   String?  // 原始文件路径
   mimeType   String?  // 文件 MIME 类型

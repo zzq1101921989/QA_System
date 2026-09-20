@@ -8,6 +8,39 @@ export function useDocuments(initialSelectedDocId: string | null) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const progressTimerRef = useRef<number | null>(null);
+  const statusPollTimerRef = useRef<number | null>(null);
+  const pollAttemptsRef = useRef(0);
+
+  const startStatusPolling = useCallback(() => {
+    if (statusPollTimerRef.current) return;
+    pollAttemptsRef.current = 0;
+
+    statusPollTimerRef.current = setInterval(async () => {
+      pollAttemptsRef.current += 1;
+      try {
+        const docs = await documentService.list();
+        setDocuments(docs);
+
+        const hasProcessing = docs.some(d => d.status === 'processing');
+        if (!hasProcessing || pollAttemptsRef.current >= 180) {
+          if (statusPollTimerRef.current) clearInterval(statusPollTimerRef.current);
+          statusPollTimerRef.current = null;
+        }
+      } catch (error) {
+        if (pollAttemptsRef.current >= 10) {
+          if (statusPollTimerRef.current) clearInterval(statusPollTimerRef.current);
+          statusPollTimerRef.current = null;
+        }
+        console.error('Failed to poll documents:', error);
+      }
+    }, 2000);
+  }, []);
+
+  const stopStatusPolling = useCallback(() => {
+    if (!statusPollTimerRef.current) return;
+    clearInterval(statusPollTimerRef.current);
+    statusPollTimerRef.current = null;
+  }, []);
 
   useEffect(() => {
     if (initialSelectedDocId !== selectedDocId) {
@@ -17,16 +50,32 @@ export function useDocuments(initialSelectedDocId: string | null) {
 
   // 初始化时从后端同步文档列表
   useEffect(() => {
+    let cancelled = false;
+
     const fetchDocuments = async () => {
       try {
         const docs = await documentService.list();
+        if (cancelled) return;
         setDocuments(docs);
+        if (docs.some(d => d.status === 'processing')) startStatusPolling();
       } catch (error) {
         console.error('Failed to fetch documents:', error);
       }
     };
-    fetchDocuments();
-  }, []);
+
+    void fetchDocuments();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [startStatusPolling]);
+
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      stopStatusPolling();
+    };
+  }, [stopStatusPolling]);
 
   /**
    * 处理文件上传并解析为文档
@@ -79,8 +128,10 @@ export function useDocuments(initialSelectedDocId: string | null) {
       
       // 用后端返回的真实数据替换占位符
       setDocuments(prev => prev.map(doc => doc.id === tempId ? newDoc : doc));
+      startStatusPolling();
     } catch (error) {
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+      stopStatusPolling();
       // 上传失败，移除占位符或标记错误
       setDocuments(prev => prev.map(doc => 
         doc.id === tempId ? { ...doc, status: 'error' } : doc

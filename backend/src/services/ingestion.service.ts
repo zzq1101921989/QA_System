@@ -22,9 +22,12 @@ export class IngestionService {
 
   /**
    * 编排整个文档摄入流程：分阶段切分 -> 向量化入库 -> 生成关系型记录
+   * @param documentId 文档的唯一标识符，用于关联向量存储和关系型记录
+   * @param parseResult 解析后的 Markdown 字符串，包含文档内容、元数据等
+   * @param filePath 上传文件的本地路径，用于后续可能的文件操作
+   * @param mimeType 上传文件的 MIME 类型，用于文件类型识别
    */
-  public async processDocument(parseResult: ParserResult, filePath?: string, mimeType?: string) {
-    const documentId = Math.random().toString(36).substring(2, 11);
+  public async processDocument(documentId: string, parseResult: ParserResult, filePath?: string, mimeType?: string) {
     const doc = await this.packingDocument(parseResult, documentId);
 
     // 第一阶段：基于 Markdown 标题结构的粗粒度语义切分 (章节)
@@ -34,7 +37,7 @@ export class IngestionService {
     });
     const chapterChunks = await markdownSplitter.splitDocuments([doc]);
 
-    // 第二阶段：细粒度的字符切块，用于向量检索
+    // 第二阶段：细粒度的字符切块
     const recursiveSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
       chunkOverlap: 200,
@@ -62,6 +65,7 @@ export class IngestionService {
         return vc;
       });
 
+      // 第三阶段：向量化存储
       const storedCount = await this.embedAndStore(taggedChunks, documentId);
       totalChunkCount += storedCount;
     }
@@ -153,15 +157,15 @@ export class IngestionService {
   public async uploadDocument(parseResult: ParserResult & { documentId: string, chunkCount: number, filePath?: string, mimeType?: string }) {
     const { summary, keywords, outline } = await this.generateSummaryKeywordsOutline(parseResult);
 
-    return await documentRepository.create({
+    return await documentRepository.updateByDocumentId(parseResult.documentId, {
       summary,
       keywords,
       outline: JSON.stringify(outline),
-      documentId: parseResult.documentId,
       name: parseResult.metadata.source,
       status: 'ready',
       chunkCount: parseResult.chunkCount || 0,
       pageCount: parseResult.metadata.page_count || 0,
+      toc: JSON.stringify(parseResult.directoryRequests),
       elements: JSON.stringify(parseResult.elements),
       filePath: parseResult.filePath,
       mimeType: parseResult.mimeType,
@@ -196,6 +200,7 @@ export class IngestionService {
       name: doc.name || "未知文档",
       status: doc.status,
       createdAt: doc.createdAt,
+      toc: doc.toc ? JSON.parse(doc.toc) : [],
       chunkCount: doc.chunkCount,
       summary: doc.summary,
       keywords: doc.keywords,

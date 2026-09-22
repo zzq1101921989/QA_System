@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, BookOpen, BookText, Loader2, Plus, Trash2, X } from 'lucide-react';
 import type { Document } from '../../../types/chat';
 import { cn } from '../../../utils/cn';
+import { hasPreferredDocumentOutline } from '../../../utils/documentOutline';
 import { OutlineModal } from '../../study/common/OutlineModal';
 
 interface BookActionModalProps {
@@ -24,7 +25,7 @@ const BookActionModal: React.FC<BookActionModalProps> = ({
 }) => {
   if (!document) return null;
 
-  const hasOutline = Boolean(document.outline && document.outline.length > 0);
+  const hasOutline = hasPreferredDocumentOutline(document);
 
   return (
     <AnimatePresence>

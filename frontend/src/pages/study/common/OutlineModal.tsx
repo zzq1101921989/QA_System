@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, ChevronRight, List, ChevronDown } from 'lucide-react';
+import { X, FileText, List, ChevronDown } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { Document } from '../../../types/chat';
-import { DocumentViewer } from './DocumentViewer';
+import { getPreferredDocumentOutline, type OutlineTreeNode } from '../../../utils/documentOutline';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-interface OutlineNode {
-  label: {
-    title: string;
-  };
-  children?: OutlineNode[];
 }
 
 interface OutlineModalProps {
@@ -23,9 +16,9 @@ interface OutlineModalProps {
   document: Document | null;
 }
 
-const OutlineItem: React.FC<{ item: OutlineNode; level: number; initiallyExpanded?: boolean }> = ({ item, level, initiallyExpanded = false }) => {
+const OutlineItem: React.FC<{ item: OutlineTreeNode; level: number; initiallyExpanded?: boolean }> = ({ item, level, initiallyExpanded = false }) => {
   const [isExpanded, setIsExpanded] = useState(initiallyExpanded);
-  const hasChildren = item.children && item.children.length > 0;
+  const hasChildren = item.children.length > 0;
 
   return (
     <div className="space-y-1">
@@ -56,7 +49,7 @@ const OutlineItem: React.FC<{ item: OutlineNode; level: number; initiallyExpande
           "text-sm flex-1",
           level === 0 ? "font-bold text-lab-text" : "text-lab-text/60"
         )}>
-          {item.label.title}
+          {item.title}
         </span>
       </div>
       <AnimatePresence initial={false}>
@@ -68,7 +61,7 @@ const OutlineItem: React.FC<{ item: OutlineNode; level: number; initiallyExpande
             transition={{ duration: 0.2 }}
             className="overflow-hidden space-y-1"
           >
-            {item.children!.map((child, idx) => (
+            {item.children.map((child, idx) => (
               <OutlineItem key={idx} item={child} level={level + 1} initiallyExpanded={initiallyExpanded && idx === 0} />
             ))}
           </motion.div>
@@ -84,6 +77,8 @@ export const OutlineModal: React.FC<OutlineModalProps> = ({
   document
 }) => {
   if (!document) return null;
+
+  const outline = getPreferredDocumentOutline(document);
 
   return (
     <AnimatePresence>
@@ -101,7 +96,7 @@ export const OutlineModal: React.FC<OutlineModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-6xl bg-lab-panel border border-lab-border rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh]"
+            className="relative w-full max-w-2xl bg-lab-panel border border-lab-border rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[80vh]"
           >
             <div className="p-4 md:p-6 border-b border-lab-border flex items-center justify-between bg-lab-text/5 flex-shrink-0">
               <div className="flex items-center gap-3">
@@ -109,7 +104,7 @@ export const OutlineModal: React.FC<OutlineModalProps> = ({
                   <List className="w-5 h-5 text-lab-accent" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-lab-text">文档解析详情</h3>
+                  <h3 className="text-lg font-bold text-lab-text">文档目录</h3>
                   <p className="text-xs text-lab-text/40 font-mono truncate max-w-[400px]">{document.name}</p>
                 </div>
               </div>
@@ -121,39 +116,19 @@ export const OutlineModal: React.FC<OutlineModalProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 flex flex-row overflow-hidden">
-              <div className="w-1/3 min-w-[280px] max-w-[400px] border-r border-lab-border flex flex-col bg-lab-panel/50">
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
-                  {document.outline && document.outline.length > 0 ? (
-                    <div className="space-y-4">
-                      {document.outline.map((item, idx) => (
-                        <OutlineItem key={idx} item={item} level={0} initiallyExpanded={idx === 0} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-lab-text/30 opacity-50 p-8 text-center">
-                      <FileText className="w-12 h-12 mb-4" />
-                      <p>该文档暂无生成的大纲内容</p>
-                    </div>
-                  )}
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar">
+              {outline.length > 0 ? (
+                <div className="space-y-4">
+                  {outline.map((item, idx) => (
+                    <OutlineItem key={idx} item={item} level={0} initiallyExpanded={idx === 0} />
+                  ))}
                 </div>
-
-                {document.summary && (
-                  <div className="p-4 md:p-6 bg-lab-text/[0.02] border-t border-lab-border flex-shrink-0">
-                    <h4 className="text-xs font-bold text-lab-text/40 uppercase tracking-widest mb-2 flex items-center gap-2">
-                      <ChevronRight className="w-3 h-3" />
-                      摘要总结
-                    </h4>
-                    <p className="text-sm text-lab-text/70 leading-relaxed italic line-clamp-4 hover:line-clamp-none transition-all">
-                      "{document.summary}"
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 relative bg-black/20 overflow-hidden flex flex-col min-h-0">
-                <DocumentViewer document={document} />
-              </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-lab-text/30 opacity-50 p-8 text-center">
+                  <FileText className="w-12 h-12 mb-4" />
+                  <p>该文档暂无目录内容</p>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -161,4 +136,3 @@ export const OutlineModal: React.FC<OutlineModalProps> = ({
     </AnimatePresence>
   );
 };
-

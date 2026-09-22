@@ -1,3 +1,5 @@
+import type { OutlineTreeNode } from "../utils/documentOutline";
+
 export interface Document {
   id: string;
   name: string;
@@ -6,7 +8,13 @@ export interface Document {
   chunkCount?: number;
   summary?: string;
   keywords?: string;
-  outline?: any[];
+  toc?: {
+    title: string;
+    documentStartPage: number;
+    documentEndPage: number;
+    chunks: OutlineTreeNode[];
+  };
+  outline?: unknown;
   filePath?: string;
   mimeType?: string;
 }

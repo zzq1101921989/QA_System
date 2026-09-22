@@ -5,6 +5,7 @@ import type { Document } from '../../../types/chat';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { OutlineModal } from './OutlineModal';
+import { hasPreferredDocumentOutline } from '../../../utils/documentOutline';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -116,7 +117,7 @@ export const ContextModal: React.FC<ContextModalProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {doc.status === 'ready' && doc.outline && (
+                      {doc.status === 'ready' && hasPreferredDocumentOutline(doc) && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -183,4 +184,3 @@ export const ContextModal: React.FC<ContextModalProps> = ({
     </div>
   );
 };
-

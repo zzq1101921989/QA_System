@@ -7,6 +7,7 @@ import { InputBar } from '../common/InputBar';
 import { DocumentViewer } from '../common/DocumentViewer';
 import { OutlineModal } from '../common/OutlineModal';
 import type { Document, Message, SessionMessage } from '../../../types/chat';
+import { hasPreferredDocumentOutline } from '../../../utils/documentOutline';
 
 interface DesktopLayoutProps {
   documents: Document[];
@@ -91,7 +92,7 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
               </div>
 
               <div className="flex items-center gap-2 flex-shrink-0">
-                {selectedDoc.outline && (
+                {hasPreferredDocumentOutline(selectedDoc) && (
                   <button
                     onClick={() => setIsOutlineOpen(true)}
                     className="p-2 text-lab-text/40 hover:text-lab-accent hover:bg-lab-accent/10 rounded-xl transition-colors"
@@ -170,4 +171,3 @@ export const DesktopLayout: React.FC<DesktopLayoutProps> = ({
     </div>
   );
 };
-
